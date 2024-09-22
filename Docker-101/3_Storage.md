@@ -102,7 +102,7 @@ CONTAINER ID   IMAGE              COMMAND   CREATED         STATUS         PORTS
 
 Las lecturas y escrituras al filesystem que se genera para los contenedores a partir de las capas read-only y read-write, se realizan mediante algún _storage driver_, donde los mas comunes son `aufs`, `overlay` y `overlay2`. Para el caso de _Ubuntu_, que es el sistema operativo que usamos en nuestro `docker host` del laboratorio, el driver por defecto es `overlay2`. Sin embargo, el comportamiento que describiremos a continuación aplica también para los otros dos drivers mencionados.
 
-Cada vez que un contedor quiere modificar un archivo de su filesystem, primero busca dicho archivo en las capas read-only, comenzando por la capa superior, y avanzando hacia abajo una capa a la vez. Al encontrar el archivo, detiene la búsqueda y realiza una copia del mismo en la capa superior (read-write). De ahora en adelante, cada vez que quiera acceder a este archivo el contenedor no tendrá acceso al archivo original, sino que usará siempre la copia que realizó en la capa superior.
+Cada vez que un contenedor quiere modificar un archivo de su filesystem, primero busca dicho archivo en las capas read-only, comenzando por la capa superior, y avanzando hacia abajo una capa a la vez. Al encontrar el archivo, detiene la búsqueda y realiza una copia del mismo en la capa superior (read-write). De ahora en adelante, cada vez que quiera acceder a este archivo el contenedor no tendrá acceso al archivo original, sino que usará siempre la copia que realizó en la capa superior.
 
 Este comportamiento se repite también en la generación de imágenes, donde cada vez que una capa superior modifica un archivo realiza una copia del mismo, invalidando las copias que puedan existir en capas inferiores.
 

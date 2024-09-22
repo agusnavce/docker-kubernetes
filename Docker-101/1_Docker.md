@@ -265,7 +265,7 @@ Esta opción permite darle un nombre al contenedor que estamos creando. En caso 
 
 ##### Opción `--rm`
 
-Esta opción le indica a Docker que el contedor debe ser eliminado una vez que el mismo se detenga. Por defecto los contenedores permanecen en el sistema una vez apagados, pero si colocamos esta opción, el mismo se elimina cuando termina su ejecución. Esto es muy útil cuando estamos realizando pruebas y no queremos dejar múltilples contenedores en nuestro equipo `host` que no sean realmente necesarios.
+Esta opción le indica a Docker que el contenedor debe ser eliminado una vez que el mismo se detenga. Por defecto los contenedores permanecen en el sistema una vez apagados, pero si colocamos esta opción, el mismo se elimina cuando termina su ejecución. Esto es muy útil cuando estamos realizando pruebas y no queremos dejar múltilples contenedores en nuestro equipo `host` que no sean realmente necesarios.
 
 ##### Opción `-p`
 
