@@ -90,7 +90,7 @@ En caso de querer instalar Docker, (`dockerd`, API y `docker`), en la máquina l
 #### Opcional: configuración de Visual Studio Code
 
 Si bien no es requerido, recomendamos instalar en su máquina el editor de texto Visual Studio Code, que puede descargar desde [aquí.](https://code.visualstudio.com/)
-Esto le permitirá conectarse a su `POD` remoto, directamente desde el editor que corre en su máquina local (por ssh) y así poder editar los archivos que se utilizan durante los laboratorios de forma mucho mas amigable que utilizando el editor `nano` o `vim` de linux. Esto será particularmente útil para la sección de `docker-compose` así como para el desafío final, que veremos en el segundo día de curso.
+Esto será particularmente útil para la sección de `docker-compose` así como para el desafío final, que veremos en el ,as adelante en el curso.
 
 Este editor es particularmente potente, gracias a la integración de múltiples extensiones que amplían su funcionalidad.
 
@@ -104,25 +104,15 @@ DockerHub está integrado de forma nativa dentro de Docker, por lo que al instal
 
 Docker se controla a nivel local mediante una interfaz de línea de comandos `Docker cli`, que por debajo interactúa con el `Docker daemon` a través de la `Docker API`.
 
-### Standalone Commands vs Management Commands
+### Management Commands
 
-Debido a su desarrollo y evolución, la `docker cli` cuenta con dos tipos de comandos diferentes, que permiten realizar las mismas tareas de dos formas.
-En las primeras versiones, la `cli` contaba con una serie de comandos independientes (que siguen siendo válidos) denominados `Standalone Commands`. Suelen ser comandos de tipo "verbos", como por ejemplo `docker run`, `docker pull`, `docker build`, que en general realizan una acción específica. Sin embargo, a medida que la plataforma crecía y se agregaban nuevas funcionalidades, resultaba cada vez mas difícil encontrar "verbos" adecuados para poder reflejar las mismas.
+Los `Management Commands` suelen comenzar con "sustantivos" que se asocian con los diversos componentes de la plataforma, por ejemplo `docker container` o `docker image` seguidos de subcomandos en forma de "verbos", que se asocian a la acción que se realiza, por ejemplo `docker container run` o `docker image ls`.
 
-A partir de la versión 1.13+, la `docker cli` evolucionó, para incluir un nuevo conjunto de comandos denominados `Management Commands`,  con el objetivo es agrupar los comandos para que puedan adecuarse a las nuevas funcionalidades y sean mas sencillos de recordar. Los `Management Commands` suelen comenzar con "sustantivos" que se asocian con los diversos componentes de la plataforma, por ejemplo `docker container` o `docker image` seguidos de subcomandos en forma de "verbos", que se asocian a la acción que se realiza, por ejemplo `docker container run` o `docker image ls`.
-
-> ℹ️ A lo largo de esta guía trataremos de utilizar en la mayoría de los casos los `Management Commands`, pero como este curso también ha ido evolucionando desde las primeras versiones hace varios años, es posible que en algunos lugares todavía se haga referencia al antiguo set de `Standalone Commands`, los cuales de todas formas siguen siendo válidos.
 
 Simplementa a modo de ejemplo, si quisieramos listar los contenedores que están corriendo actualmente, utilizando los `Management commands` ejecutaríamos:
 
 ```bash
 $ docker container ls
-```
-
-mientras que con los `Standalone Commands` sería:
-
-```bash
-$ docker ls
 ```
 
 #### Ayuda: `docker help`

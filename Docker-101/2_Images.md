@@ -164,7 +164,7 @@ El contenido del archivo 'Dockerfile' sería como el siguiente:
 
 ```dockerfile
 FROM ubuntu
-LABEL maintainer="cdh@conatel.com.uy"
+LABEL maintainer="agus@agus.com"
 RUN apt-get update
 RUN apt-get install -y python3
 RUN apt-get install -y python3-pip
@@ -246,7 +246,7 @@ $ docker image inspect prod-env:0.1
 ...
 ...
 "Labels": {
-    "maintainer": "cdh@conatel.com.uy"
+    "maintainer": "cdh@agusnavce.com.uy"
 }
 ...
 ...
@@ -459,7 +459,7 @@ IMAGE          CREATED          CREATED BY                                      
 <missing>      32 minutes ago   RUN /bin/sh -c apt-get install -y python3-pi…   332MB     buildkit.dockerfile.v0
 <missing>      33 minutes ago   RUN /bin/sh -c apt-get install -y python3 # …   30.1MB    buildkit.dockerfile.v0
 <missing>      33 minutes ago   RUN /bin/sh -c apt-get update # buildkit        44.7MB    buildkit.dockerfile.v0
-<missing>      33 minutes ago   LABEL maintainer=cdh@conatel.com.uy             0B        buildkit.dockerfile.v0
+<missing>      33 minutes ago   LABEL maintainer=cdh@agusnavce.com.uy           0B        buildkit.dockerfile.v0
 <missing>      2 weeks ago      /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B        
 <missing>      2 weeks ago      /bin/sh -c #(nop) ADD file:194c886b88876c180…   77.8MB    
 <missing>      2 weeks ago      /bin/sh -c #(nop)  LABEL org.opencontainers.…   0B        
@@ -494,7 +494,7 @@ Dado que las capas son read-only, si una capa posterior modifica un archivo cont
 
 ```dockerfile
 FROM ubuntu
-LABEL maintainer="cdh@conatel.com.uy"
+LABEL maintainer="cdh@agusnavce.com.uy"
 # Colocamos el ADD archivo config.txt al principio del Dockerfile
 ADD config.txt /setting/config.txt
 RUN apt-get update
@@ -564,7 +564,7 @@ CMD bash
 
 ```dockerfile
 FROM ubuntu
-LABEL maintainer="cdh@conatel.com.uy"
+LABEL maintainer="cdh@agusnavce.com.uy"
 RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
 RUN apt-get install -y python3
