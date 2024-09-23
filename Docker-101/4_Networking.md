@@ -547,7 +547,7 @@ Si queremos tener control sobre el puerto utilizado para publicar el servicio en
 $ docker run -d --rm --name prueba-web-server -e NODE_ENV=development -p 80:2368 ghost
 ```
 
-De esta forma el puerto `2368` del contenedor queda mapeado al puerto `80` de la máquina host. Para comprobar que esto funciona intente navegar a la url ``http://servernumX.labs.conatest.click``.
+De esta forma el puerto `2368` del contenedor queda mapeado al puerto `80` de la máquina host. Para comprobar que esto funciona intente navegar a la url ``http://servernumX``.
 
 Si quisieramos además del puerto, poder controlar sobre que IP de la máquina host publicamos el servicio, también podemos indicarlo:
 
