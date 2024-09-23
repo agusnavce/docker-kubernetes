@@ -508,7 +508,7 @@ $ curl http://172.17.0.2:2368/
 
 Como podemos ver el servidor devuelve la página en HTML, lo que demuestra que está funcionando correctamente.
 
-¿Pero que sucede si utilizando el navegador de nuestra notebook intentamos acceder a ``http://servernumX.labs.conatest.click:2368``?. Esto no funciona debido a que ``servernumX.labs.conatest.click`` está mapeado a la IP "exterior" del host y por defecto los contenedores no son accesibles dede afuera.
+¿Pero que sucede si utilizando el navegador de nuestra notebook intentamos acceder a ``http://servernumX:2368``?. Esto no funciona debido a que ``servernumX`` está mapeado a la IP "exterior" del host y por defecto los contenedores no son accesibles dede afuera.
 
 Para hacer que un contenedor pueda ser accesible desde afuera es necesario publicar el puerto al momento de la creación del mismo, esto se hace utilizando la opción ``-p``.
 De esta forma, si detememos el contenedor y lo ejecutamos con dicha opción:
