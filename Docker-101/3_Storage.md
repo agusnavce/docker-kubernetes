@@ -486,8 +486,8 @@ Ahora creamos el volumen
 
 ```bash
 $ docker volume create --driver vieux/sshfs \
-  -o sshcmd=ubuntu@sshserver.labs.conatest.click:/home/ubuntu/docker101 \
-  -o password=conatel_docker101 \
+  -o sshcmd=ubuntu@sshserver:/home/ubuntu/docker101 \
+  -o password=docker101 \
   sshvolume
 
 $ docker volume ls
