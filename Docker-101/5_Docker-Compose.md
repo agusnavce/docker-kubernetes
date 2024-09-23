@@ -82,7 +82,7 @@ En este ejercicio vamos a crear dos servicios simples, llamados *db-server* y *w
 
    ```bash
    FROM ubuntu
-   LABEL maintainer="cdh@conatel.com.uy"
+   LABEL maintainer="cdh@agusnavce.com.uy"
    RUN apt-get update
    RUN apt-get install -y net-tools
    RUN apt-get install -y dnsutils
@@ -415,7 +415,7 @@ volumes:
     driver: vieux/sshfs:latest
     driver_opts:
       sshcmd: "ubuntu@sshserver.labs.conatest.click:/home/ubuntu/docker101"
-      password: "conatel_docker101"
+      password: "agusnavce_docker101"
 ```
 
 #### Accediendo a volumenes externos
