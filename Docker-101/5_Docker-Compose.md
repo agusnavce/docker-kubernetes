@@ -20,10 +20,6 @@ Este archivo de configuración, en formato `yaml`, no solo nos sirve para poder 
 
 ## Instalando Docker Compose
 
-> ⚠️ **Nota:** en los equipos que utilizamos para el laboratorio, `docker-compose` **ya se encuentra instalado**. Esta sección se coloca como referencia, pero puede saltearla en el curso.
-
-
-
 Docker Compose se puede instalar de varias formas, recomendamos realizar la instalación mediante una de estas dos alternativas:
 
 **Alternativa 1: Instalación mediante *curl***
