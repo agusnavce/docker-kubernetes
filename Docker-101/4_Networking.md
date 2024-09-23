@@ -22,6 +22,8 @@ Estas tres redes utilizan drivers diferentes y por tanto tienen comportamientos 
 
 La red ``bridge`` representa a la interface ``docker0`` en el host. Básicamente, al instalar Docker se crea en el host una interface de red ``docker0`` que "mira" hacia los contenedores, se le asigna una dirección IP, y se la deja lista para que los contenedores que no definan ninguna red específica al momento de su creación se conecten a ella.
 
+Ejemplo en linux:
+
 ```bash
 $ ifconfig docker0
 docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
@@ -35,7 +37,7 @@ docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 
 ```
 
-👉 si el comando `ifconfig` no se encuentra instalado en el equipo, puede instalarlo con: `sudo apt install -y net-tools`
+👉 si el comando `ifconfig` no se encuentra instalado en el equipo, puede instalarlo con: `sudo apt install -y net-tools` para linux
 
 La red se llama ``bridge`` debido a que técnicamente es eso, un bridge, que interconecta en capa 2 a todos los contenedores que la utilizan, y a la interface ``docker0`` del host. La interface ``docker0`` existe para que los contenedores conectados a la red ``bridge`` tengan conectividad con el exterior; esto se hace con un PAT utilizando la IP de dicha interface.
 Profundizaremos en este tipo de red un poco mas adelante.
