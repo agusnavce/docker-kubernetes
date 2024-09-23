@@ -163,9 +163,8 @@ Exploremos esta estrategia de persistencia con un ejercicio.
 6. Salir del contenedor nuevamente, y esta vez eliminarlo.
 7. Generar un contenedor nuevamente a partir de la imagen, conectarse al mismo y verificar que el archivo no existe.
 
-    `<details>`
-    `<summary>`Solución`</summary>`
-
+<details>
+<summary>Solución</summary>
 <pre>
     $ mkdir ejercicio11
     $ cd ejercicio11
