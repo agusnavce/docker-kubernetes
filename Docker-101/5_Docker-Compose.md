@@ -407,7 +407,7 @@ volumes:
 ```
 
 Podemos en cambio especificar que driver queremos utilizar, así como pasarle las opciones necesarias al mismo.
-Por ejemplo, podemos utilizar el driver *sshfs* que ya vimos anteriormente [aquí](https://github.com/conapps/Devops-101/blob/master/Docker-101/3_Storage.md#volumenes-con-drivers-creados-por-los-usuarios), para montar un volumen desde un servidor ssh.
+Por ejemplo, podemos utilizar el driver *sshfs* que ya vimos anteriormente [aquí](https://github.com/agusnavce/docker-kubernetes/blob/main/Docker-101/3_Storage.md#volumenes-con-drivers-creados-por-los-usuarios), para montar un volumen desde un servidor ssh.
 
 ```bash
 volumes:
@@ -432,7 +432,7 @@ volumes:
     external: true
 ```
 
-En este caso buscará  un [volumen](https://github.com/conapps/Devops-101/blob/master/Contenedores/3_Storage.md#volumenes) ya definido previamente con nombre `mi-volumen-externo`.
+En este caso buscará  un [volumen](https://github.com/agusnavce/docker-kubernetes/blob/main/Docker-101/3_Storage.md#volumenes) ya definido previamente con nombre `mi-volumen-externo`.
 
 #### Eliminación de volumenes
 
