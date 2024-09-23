@@ -557,14 +557,11 @@ Para esto vamos a crear dos redes en forma manual (*custom networks*):
        tty: true
        volumes:
          - db-volume:/backup/base
-         - mi-volumen-externo:/mi-volumen
        networks:
          - backup-network
 
    volumes:
      db-volume:
-     mi-volumen-externo: 
-       external: true
 
    networks:
      prod-network:
