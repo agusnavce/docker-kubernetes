@@ -414,7 +414,7 @@ volumes:
   ssh-volume:
     driver: vieux/sshfs:latest
     driver_opts:
-      sshcmd: "ubuntu@sshserver.labs.conatest.click:/home/ubuntu/docker101"
+      sshcmd: "ubuntu@sshserver.click:/home/ubuntu/docker101"
       password: "agusnavce_docker101"
 ```
 
