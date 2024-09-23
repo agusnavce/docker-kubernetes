@@ -459,7 +459,7 @@ mi-nuevo-volumen
 
 ### Volumenes con drivers creados por los usuarios.
 
-Cuando creamos un volumen, por defecto este utilizará el driver `local` para el acceso al mismo. Sin embargo es posible crear drivers que extiendan la funcionalidad de los volúmenes para, por ejemplo, montar un filesystem alojado en un proveedor de nube. Estos drivers pueden instalarse en la forma de  `docker plugin` mediante un proceso muy sencillo. Puede encontrar una lista de dri
+Cuando creamos un volumen, por defecto este utilizará el driver `local` para el acceso al mismo. Sin embargo es posible crear drivers que extiendan la funcionalidad de los volúmenes para, por ejemplo, montar un filesystem alojado en un proveedor de nube. Estos drivers pueden instalarse en la forma de  `docker plugin` mediante un proceso muy sencillo.
 
 A continuación exploraremos este mecanismo con un par de ejemplos.
 
