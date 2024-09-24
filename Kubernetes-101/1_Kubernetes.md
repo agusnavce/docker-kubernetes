@@ -409,7 +409,7 @@ minikube stop
 
 ## Componentes principales de Kubernetes:
 
-![alt text](Imagenes/arch.png "Arquitectura de Microservicios")
+![alt text](Imagenes/arch.png "Kubernetes Arquitectura")
 
 Los componentes de Kubernetes se dividen en dos categorías principales: el Plano de Control (Control Plane) y los Nodos de Trabajo (Worker Nodes). Vamos a explorar cada componente en detalle:
 
@@ -693,3 +693,5 @@ Detén Minikube:
 ```bash
 minikube stop
 ```
+
+| [Siguiente --&gt;](2_Objetos.md) |

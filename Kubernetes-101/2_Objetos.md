@@ -2,6 +2,8 @@
 
 ## Pods
 
+![alt text](Imagenes/Pods.png "Pods")
+
 Los Pods son la unidad más básica y fundamental en Kubernetes. Representan un conjunto de uno o más contenedores que se ejecutan juntos en el mismo host y comparten el mismo contexto de red y almacenamiento.
 
 #### Características clave:
@@ -132,7 +134,7 @@ En este ejercicio, crearemos un Pod, examinaremos su estado y estructura, y real
 
 ## ReplicaSets
 
-### Explicación Detallada
+![alt text](Imagenes/Replica.png "ReplicaSet")
 
 Un ReplicaSet es un objeto de Kubernetes que asegura que un número específico de réplicas de un Pod esté ejecutándose en todo momento. Proporciona capacidades de auto-reparación y escalado horizontal para los Pods.
 
@@ -275,7 +277,7 @@ En este ejercicio, crearemos un ReplicaSet, examinaremos su comportamiento y rea
 
 7. **Uso de Probes**: Incluye liveness y readiness probes en la plantilla de Pod para mejorar la confiabilidad y la capacidad de auto-reparación.
 
-## 3. Deployments
+## Deployments
 
 ### Explicación Detallada
 
@@ -438,9 +440,10 @@ En este ejercicio, crearemos un Deployment, realizaremos una actualización, esc
 8. **Uso de ConfigMaps y Secrets**: Externaliza la configuración y los secretos usando ConfigMaps y Secrets en lugar de codificarlos en la especificación del Deployment.
 
 
-## 4. DaemonSets
+## DaemonSets
 
-### Explicación Detallada
+![DaemonSet](Imagenes/Daemon.png "DaemonSet")
+
 
 Un DaemonSet es un objeto de Kubernetes que asegura que todos (o algunos) nodos ejecuten una copia de un Pod. A medida que se añaden nodos al cluster, los Pods son añadidos a ellos. Cuando los nodos se eliminan del cluster, esos Pods son recolectados como basura.
 
@@ -593,7 +596,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
 
 8. **Logs**: Configura la rotación de logs para evitar que los logs de los Pods del DaemonSet llenen el almacenamiento de los nodos.
 
-## 5. StatefulSets
+## StatefulSets
 
 ### Explicación Detallada
 
@@ -794,11 +797,7 @@ En este ejercicio, crearemos un StatefulSet para una aplicación de base de dato
 
 9. **Consideraciones de red**: Ten en cuenta las implicaciones de red al diseñar aplicaciones que usan StatefulSets, especialmente en entornos multi-zona o multi-región.
 
-[El contenido anterior sobre Pods, ReplicaSets, Deployments, DaemonSets y StatefulSets permanece sin cambios]
-
 ## Jobs y CronJobs
-
-### Explicación Detallada
 
 #### Jobs
 
@@ -981,8 +980,6 @@ Características clave de CronJobs:
 9. **Zona horaria**: Ten en cuenta la zona horaria del cluster al programar CronJobs.
 
 10. **Pruebas**: Realiza pruebas exhaustivas de tus Jobs y CronJobs, incluyendo escenarios de fallo y recuperación.
-
-[El contenido anterior sobre otros objetos permanece sin cambios]
 
 ## Services
 
@@ -1729,3 +1726,4 @@ En una aplicación del mundo real, los diferentes objetos de Kubernetes trabajan
 
 Has desplegado una aplicación web completa con todos sus componentes, demostrando cómo estos objetos de Kubernetes trabajan juntos en un escenario del mundo real.
 
+| [&lt;-- Volver](1_Kubernetes.md) |
