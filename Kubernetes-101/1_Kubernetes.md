@@ -407,20 +407,138 @@ Y finalmente, detener el cluster de Minikube:
 minikube stop
 ```
 
-### Componentes principales de Kubernetes:
+## Componentes principales de Kubernetes:
 
 ![alt text](Imagenes/arch.png "Arquitectura de Microservicios")
 
-1. **Plano de control (Control Plane)**:
-   - **API Server**: Punto de entrada para todas las operaciones en el cluster.
-   - **Scheduler**: Asigna pods a nodos basándose en recursos disponibles y políticas.
-   - **Controller Manager**: Ejecuta controladores que regulan el estado del cluster.
-   - **etcd**: Almacén de datos distribuido que mantiene el estado del cluster.
+Los componentes de Kubernetes se dividen en dos categorías principales: el Plano de Control (Control Plane) y los Nodos de Trabajo (Worker Nodes). Vamos a explorar cada componente en detalle:
 
-2. **Nodos de trabajo (Worker Nodes)**:
-   - **Kubelet**: Asegura que los contenedores estén ejecutándose en un pod.
-   - **Kube-proxy**: Mantiene las reglas de red en los nodos.
-   - **Container Runtime**: Software responsable de ejecutar contenedores (e.g., Docker, containerd).
+## Plano de Control (Control Plane)
+
+El Plano de Control es el cerebro de Kubernetes, responsable de mantener el estado deseado del cluster, tomar decisiones globales y responder a eventos del cluster.
+
+### 1. API Server
+
+El API Server es el componente central del plano de control de Kubernetes y el único con el que los otros componentes se comunican directamente.
+
+- **Función principal**: Expone la API de Kubernetes, procesando y validando todas las solicitudes REST.
+- **Características clave**:
+  - Punto de entrada para todas las operaciones administrativas y de orquestación.
+  - Implementa un modelo de seguridad basado en autenticación, autorización y control de admisión.
+  - Actúa como puente entre varios componentes para mantener el estado del cluster.
+- **Importancia**: Permite la comunicación entre todos los componentes y ofrece una interfaz consistente para que los clientes interactúen con el cluster.
+
+### 2. Scheduler
+
+El Scheduler es responsable de asignar pods recién creados a los nodos.
+
+- **Función principal**: Decide en qué nodo se debe ejecutar cada pod.
+- **Proceso de decisión**:
+  - Considera requisitos de recursos, políticas, afinidad/anti-afinidad, taints/tolerations, y otros factores.
+  - Monitorea constantemente la utilización de recursos en los nodos.
+- **Importancia**: Asegura una distribución eficiente de las cargas de trabajo en el cluster, optimizando el uso de recursos y respetando las restricciones definidas.
+
+### 3. Controller Manager
+
+El Controller Manager ejecuta varios controladores que regulan el estado del cluster.
+
+- **Función principal**: Mantiene el estado deseado del cluster mediante la ejecución de bucles de control.
+- **Tipos de controladores**:
+  - Node Controller: Monitorea el estado de los nodos.
+  - Replication Controller: Mantiene el número correcto de pods para cada objeto ReplicaSet.
+  - Endpoints Controller: Vincula Services y Pods.
+  - Service Account & Token Controllers: Crean cuentas y tokens de API por defecto.
+- **Importancia**: Asegura que el estado actual del cluster coincida con el estado deseado, realizando acciones correctivas cuando sea necesario.
+
+### 4. etcd
+
+etcd es un almacén de datos distribuido de tipo clave-valor que actúa como la "fuente de verdad" para todos los datos del cluster.
+
+- **Función principal**: Almacena toda la configuración del cluster, estado, y metadatos.
+- **Características clave**:
+  - Alta disponibilidad y consistencia fuerte.
+  - Utiliza el algoritmo de consenso Raft para la replicación.
+- **Importancia**: Proporciona un almacenamiento confiable y consistente para todos los datos del cluster, permitiendo la recuperación en caso de fallos.
+
+## Nodos de Trabajo (Worker Nodes)
+
+Los Nodos de Trabajo son las máquinas que ejecutan las aplicaciones y cargas de trabajo containerizadas.
+
+### 1. Kubelet
+
+Kubelet es el agente principal que se ejecuta en cada nodo del cluster.
+
+- **Función principal**: Asegura que los contenedores estén ejecutándose en un Pod.
+- **Responsabilidades**:
+  - Comunica con el API Server para recibir instrucciones sobre los Pods a ejecutar.
+  - Gestiona el ciclo de vida de los contenedores, realizando operaciones como pull de imágenes y ejecución de contenedores.
+  - Reporta el estado del nodo y de cada Pod al API Server.
+- **Importancia**: Actúa como el enlace entre el plano de control y los contenedores en ejecución, asegurando que el estado deseado se mantenga en cada nodo.
+
+### 2. Kube-proxy
+
+Kube-proxy es un proxy de red que se ejecuta en cada nodo, implementando parte de la abstracción de Service de Kubernetes.
+
+- **Función principal**: Mantiene las reglas de red que permiten la comunicación con los Pods desde dentro o fuera del cluster.
+- **Modos de operación**:
+  - iptables: Configura reglas de iptables para dirigir el tráfico.
+  - IPVS: Utiliza la funcionalidad de IP Virtual Server del kernel de Linux para el balanceo de carga.
+- **Importancia**: Facilita la comunicación de red entre diferentes Servicios y Pods, implementando el balanceo de carga para los Servicios.
+
+### 3. Container Runtime
+
+El Container Runtime es el software responsable de ejecutar los contenedores.
+
+- **Función principal**: Gestiona la ejecución y el ciclo de vida de los contenedores.
+- **Opciones comunes**:
+  - Docker: Ampliamente utilizado, aunque Kubernetes está migrando hacia alternativas más ligeras.
+  - containerd: Un runtime más ligero y enfocado, ganando popularidad en Kubernetes.
+  - CRI-O: Diseñado específicamente para Kubernetes, compatible con OCI (Open Container Initiative).
+- **Importancia**: Proporciona el entorno de ejecución para los contenedores, gestionando aspectos como el aislamiento, la asignación de recursos y la comunicación con el sistema operativo del host.
+
+# Interacciones entre Componentes de Kubernetes
+
+Entender cómo interactúan los diferentes componentes de Kubernetes es crucial para comprender cómo funciona el sistema en su conjunto. Aquí se describen algunas de las interacciones clave:
+
+## 1. API Server como Centro de Comunicación
+
+El API Server actúa como el hub central para todas las comunicaciones en el cluster:
+
+- **Kubelet → API Server**: Los Kubelets en cada nodo se comunican regularmente con el API Server para reportar el estado de los nodos y pods, y para recibir instrucciones sobre qué pods deben estar ejecutándose.
+
+- **Controller Manager → API Server**: Los controladores en el Controller Manager observan constantemente el estado del cluster a través del API Server y realizan acciones para mantener el estado deseado.
+
+- **Scheduler → API Server**: El Scheduler observa los nuevos pods sin nodo asignado a través del API Server y decide en qué nodo deben ejecutarse.
+
+- **etcd ↔ API Server**: El API Server es el único componente que se comunica directamente con etcd, utilizándolo para almacenar y recuperar el estado del cluster.
+
+## 2. Flujo de Creación de un Pod
+
+1. Un usuario o controlador crea un Pod a través del API Server.
+2. El API Server almacena la información del Pod en etcd.
+3. El Scheduler, observando el API Server, nota el nuevo Pod sin nodo asignado.
+4. El Scheduler decide en qué nodo debe ejecutarse el Pod y actualiza la información a través del API Server.
+5. El Kubelet del nodo seleccionado, que está constantemente comprobando el API Server, nota que se le ha asignado un nuevo Pod.
+6. El Kubelet instruye al Container Runtime para que inicie los contenedores del Pod.
+7. El Kubelet informa al API Server sobre el estado del Pod.
+
+## 3. Networking y Services
+
+- **Kube-proxy ↔ API Server**: Kube-proxy observa los cambios en los Services y Endpoints a través del API Server y actualiza las reglas de red en cada nodo.
+
+- **Container Runtime ↔ Kube-proxy**: El tráfico de red de los contenedores pasa por las reglas de red configuradas por Kube-proxy.
+
+## 4. Monitoreo y Recuperación
+
+- **Controller Manager → API Server → Kubelet**: Si el Node Controller en el Controller Manager detecta que un nodo no está respondiendo, puede marcar los Pods en ese nodo como terminados a través del API Server. Los Kubelets en otros nodos pueden entonces ser instruidos para iniciar nuevos Pods para reemplazar los terminados.
+
+## 5. Actualizaciones y Escalado
+
+- **Controller Manager → API Server → Scheduler → Kubelet**: Cuando se actualiza un Deployment, el Deployment Controller en el Controller Manager crea nuevos Pods a través del API Server. El Scheduler asigna estos nuevos Pods a nodos, y los Kubelets en esos nodos los inician.
+
+## 6. Persistencia de Datos
+
+- **Todos los componentes → API Server ↔ etcd**: Cualquier cambio en el estado del cluster (como la creación, actualización o eliminación de recursos) se realiza a través del API Server, que luego persiste estos cambios en etcd.
 
 
 ### Objetos básicos de Kubernetes:

@@ -796,7 +796,7 @@ En este ejercicio, crearemos un StatefulSet para una aplicación de base de dato
 
 [El contenido anterior sobre Pods, ReplicaSets, Deployments, DaemonSets y StatefulSets permanece sin cambios]
 
-## 6. Jobs y CronJobs
+## Jobs y CronJobs
 
 ### Explicación Detallada
 
@@ -982,6 +982,220 @@ Características clave de CronJobs:
 
 10. **Pruebas**: Realiza pruebas exhaustivas de tus Jobs y CronJobs, incluyendo escenarios de fallo y recuperación.
 
+[El contenido anterior sobre otros objetos permanece sin cambios]
+
+## Services
+
+Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible en la red, ya sea dentro del cluster o externamente.
+
+#### Características clave:
+- **Descubrimiento de servicios**: Proporcionan un nombre DNS estable para un conjunto de Pods.
+- **Balanceo de carga**: Distribuyen el tráfico entre los Pods asociados.
+- **Abstracción de red**: Ocultan la complejidad de la red subyacente y los cambios en los Pods.
+- **Exposición de aplicaciones**: Permiten exponer aplicaciones fuera del cluster.
+
+#### Tipos de Services:
+1. **ClusterIP**: Expone el Service en una IP interna del cluster. Es el tipo por defecto.
+2. **NodePort**: Expone el Service en el mismo puerto de cada nodo seleccionado en el cluster.
+3. **LoadBalancer**: Expone el Service externamente usando el balanceador de carga del proveedor de nube.
+4. **ExternalName**: Mapea el Service a un nombre DNS externo.
+
+#### Anatomía de un Service:
+1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
+2. **Spec**: 
+   - `selector`: Define qué Pods son parte del Service.
+   - `ports`: Especifica los puertos que el Service expone.
+   - `type`: Determina cómo se expone el Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
+3. **Status**: Contiene la IP asignada al Service y otra información de estado.
+
+### Ejercicio Práctico: Creación y Manipulación de Services
+
+#### Objetivo
+En este ejercicio, crearemos diferentes tipos de Services para una aplicación web simple y exploraremos cómo interactúan con los Pods.
+
+#### Pasos
+
+1. **Crear un Deployment para nuestra aplicación**
+
+Crea un archivo llamado `web-deployment.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
+Aplica el Deployment:
+
+```bash
+kubectl apply -f web-deployment.yaml
+```
+
+2. **Crear un Service de tipo ClusterIP**
+
+Crea un archivo llamado `clusterip-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+spec:
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f clusterip-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-clusterip
+```
+
+3. **Crear un Service de tipo NodePort**
+
+Crea un archivo llamado `nodeport-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f nodeport-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-nodeport
+```
+
+4. **Crear un Service de tipo LoadBalancer**
+
+Nota: Este tipo de Service requiere un proveedor de nube que soporte balanceadores de carga externos.
+
+Crea un archivo llamado `loadbalancer-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f loadbalancer-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-loadbalancer
+```
+
+5. **Probar los Services**
+
+Para el Service ClusterIP:
+```bash
+kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
+/ # apk add --no-cache curl
+/ # curl web-clusterip
+```
+
+Para el Service NodePort (asumiendo que estás usando minikube):
+```bash
+minikube service web-nodeport --url
+```
+
+Luego, abre la URL proporcionada en tu navegador.
+
+Para el Service LoadBalancer (si estás en un proveedor de nube):
+```bash
+kubectl get services web-loadbalancer
+```
+Usa la IP externa proporcionada para acceder al servicio.
+
+6. **Limpiar**
+
+Elimina todos los recursos creados:
+
+```bash
+kubectl delete -f web-deployment.yaml
+kubectl delete -f clusterip-service.yaml
+kubectl delete -f nodeport-service.yaml
+kubectl delete -f loadbalancer-service.yaml
+```
+
+### Mejores Prácticas para Services
+
+1. **Uso de selectores**: Utiliza selectores de etiquetas precisos para asociar los Services con los Pods correctos.
+
+2. **Nombrado consistente**: Usa un esquema de nombrado consistente para tus Services para facilitar la gestión.
+
+3. **Exposición mínima**: Utiliza ClusterIP para servicios internos y expón externamente solo cuando sea necesario.
+
+4. **Uso de anotaciones**: Aprovecha las anotaciones para configuraciones específicas del proveedor de nube.
+
+5. **Monitoreo**: Implementa monitoreo para tus Services para detectar problemas de conectividad o balanceo de carga.
+
+6. **Seguridad**: Utiliza NetworkPolicies junto con Services para controlar el tráfico de red.
+
+7. **Pruebas de conectividad**: Realiza pruebas regulares para asegurar que los Services están funcionando correctamente.
+
+8. **Documentación**: Documenta el propósito y las dependencias de cada Service en tu aplicación.
+
+
 ## Relaciones entre objetos
 
 Entender cómo se relacionan estos objetos es crucial para diseñar y gestionar aplicaciones en Kubernetes de manera eficiente:
@@ -992,7 +1206,7 @@ Entender cómo se relacionan estos objetos es crucial para diseñar y gestionar 
 
 - **Jobs y CronJobs**: Estos objetos crean y gestionan Pods para tareas específicas o programadas. Los CronJobs crean Jobs según un horario definido.
 
-- **Services y Pods**: Aunque no se han cubierto en detalle aquí, los Services proporcionan una abstracción para exponer grupos de Pods como un servicio de red.
+- **Services y Pods**: Los Services proporcionan una abstracción para exponer grupos de Pods como un servicio de red.
 
 Al diseñar aplicaciones para Kubernetes, es importante considerar qué tipo de objeto es más adecuado para cada componente de la aplicación. Por ejemplo:
 
