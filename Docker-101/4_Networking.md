@@ -22,6 +22,8 @@ Estas tres redes utilizan drivers diferentes y por tanto tienen comportamientos 
 
 La red ``bridge`` representa a la interface ``docker0`` en el host. Básicamente, al instalar Docker se crea en el host una interface de red ``docker0`` que "mira" hacia los contenedores, se le asigna una dirección IP, y se la deja lista para que los contenedores que no definan ninguna red específica al momento de su creación se conecten a ella.
 
+Ejemplo en linux:
+
 ```bash
 $ ifconfig docker0
 docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
@@ -35,7 +37,7 @@ docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
 
 ```
 
-👉 si el comando `ifconfig` no se encuentra instalado en el equipo, puede instalarlo con: `sudo apt install -y net-tools`
+👉 si el comando `ifconfig` no se encuentra instalado en el equipo, puede instalarlo con: `sudo apt install -y net-tools` para linux
 
 La red se llama ``bridge`` debido a que técnicamente es eso, un bridge, que interconecta en capa 2 a todos los contenedores que la utilizan, y a la interface ``docker0`` del host. La interface ``docker0`` existe para que los contenedores conectados a la red ``bridge`` tengan conectividad con el exterior; esto se hace con un PAT utilizando la IP de dicha interface.
 Profundizaremos en este tipo de red un poco mas adelante.
@@ -506,7 +508,7 @@ $ curl http://172.17.0.2:2368/
 
 Como podemos ver el servidor devuelve la página en HTML, lo que demuestra que está funcionando correctamente.
 
-¿Pero que sucede si utilizando el navegador de nuestra notebook intentamos acceder a ``http://servernumX.labs.conatest.click:2368``?. Esto no funciona debido a que ``servernumX.labs.conatest.click`` está mapeado a la IP "exterior" del host y por defecto los contenedores no son accesibles dede afuera.
+¿Pero que sucede si utilizando el navegador de nuestra notebook intentamos acceder a ``http://servernumX:2368``?. Esto no funciona debido a que ``servernumX`` está mapeado a la IP "exterior" del host y por defecto los contenedores no son accesibles dede afuera.
 
 Para hacer que un contenedor pueda ser accesible desde afuera es necesario publicar el puerto al momento de la creación del mismo, esto se hace utilizando la opción ``-p``.
 De esta forma, si detememos el contenedor y lo ejecutamos con dicha opción:
@@ -545,7 +547,7 @@ Si queremos tener control sobre el puerto utilizado para publicar el servicio en
 $ docker run -d --rm --name prueba-web-server -e NODE_ENV=development -p 80:2368 ghost
 ```
 
-De esta forma el puerto `2368` del contenedor queda mapeado al puerto `80` de la máquina host. Para comprobar que esto funciona intente navegar a la url ``http://servernumX.labs.conatest.click``.
+De esta forma el puerto `2368` del contenedor queda mapeado al puerto `80` de la máquina host. Para comprobar que esto funciona intente navegar a la url ``http://servernumX``.
 
 Si quisieramos además del puerto, poder controlar sobre que IP de la máquina host publicamos el servicio, también podemos indicarlo:
 

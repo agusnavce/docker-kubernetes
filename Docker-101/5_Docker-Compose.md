@@ -20,10 +20,6 @@ Este archivo de configuración, en formato `yaml`, no solo nos sirve para poder 
 
 ## Instalando Docker Compose
 
-> ⚠️ **Nota:** en los equipos que utilizamos para el laboratorio, `docker-compose` **ya se encuentra instalado**. Esta sección se coloca como referencia, pero puede saltearla en el curso.
-
-
-
 Docker Compose se puede instalar de varias formas, recomendamos realizar la instalación mediante una de estas dos alternativas:
 
 **Alternativa 1: Instalación mediante *curl***
@@ -86,7 +82,7 @@ En este ejercicio vamos a crear dos servicios simples, llamados *db-server* y *w
 
    ```bash
    FROM ubuntu
-   LABEL maintainer="cdh@conatel.com.uy"
+   LABEL maintainer="cdh@agusnavce.com.uy"
    RUN apt-get update
    RUN apt-get install -y net-tools
    RUN apt-get install -y dnsutils
@@ -411,15 +407,15 @@ volumes:
 ```
 
 Podemos en cambio especificar que driver queremos utilizar, así como pasarle las opciones necesarias al mismo.
-Por ejemplo, podemos utilizar el driver *sshfs* que ya vimos anteriormente [aquí](https://github.com/conapps/Devops-101/blob/master/Docker-101/3_Storage.md#volumenes-con-drivers-creados-por-los-usuarios), para montar un volumen desde un servidor ssh.
+Por ejemplo, podemos utilizar el driver *sshfs* que ya vimos anteriormente [aquí](https://github.com/agusnavce/docker-kubernetes/blob/main/Docker-101/3_Storage.md#volumenes-con-drivers-creados-por-los-usuarios), para montar un volumen desde un servidor ssh.
 
 ```bash
 volumes:
   ssh-volume:
     driver: vieux/sshfs:latest
     driver_opts:
-      sshcmd: "ubuntu@sshserver.labs.conatest.click:/home/ubuntu/docker101"
-      password: "conatel_docker101"
+      sshcmd: "ubuntu@sshserver.click:/home/ubuntu/docker101"
+      password: "agusnavce_docker101"
 ```
 
 #### Accediendo a volumenes externos
@@ -436,7 +432,7 @@ volumes:
     external: true
 ```
 
-En este caso buscará  un [volumen](https://github.com/conapps/Devops-101/blob/master/Contenedores/3_Storage.md#volumenes) ya definido previamente con nombre `mi-volumen-externo`.
+En este caso buscará  un [volumen](https://github.com/agusnavce/docker-kubernetes/blob/main/Docker-101/3_Storage.md#volumenes) ya definido previamente con nombre `mi-volumen-externo`.
 
 #### Eliminación de volumenes
 
@@ -561,14 +557,11 @@ Para esto vamos a crear dos redes en forma manual (*custom networks*):
        tty: true
        volumes:
          - db-volume:/backup/base
-         - mi-volumen-externo:/mi-volumen
        networks:
          - backup-network
 
    volumes:
      db-volume:
-     mi-volumen-externo: 
-       external: true
 
    networks:
      prod-network:

@@ -163,9 +163,8 @@ Exploremos esta estrategia de persistencia con un ejercicio.
 6. Salir del contenedor nuevamente, y esta vez eliminarlo.
 7. Generar un contenedor nuevamente a partir de la imagen, conectarse al mismo y verificar que el archivo no existe.
 
-    `<details>`
-    `<summary>`Solución`</summary>`
-
+<details>
+<summary>Solución</summary>
 <pre>
     $ mkdir ejercicio11
     $ cd ejercicio11
@@ -460,7 +459,7 @@ mi-nuevo-volumen
 
 ### Volumenes con drivers creados por los usuarios.
 
-Cuando creamos un volumen, por defecto este utilizará el driver `local` para el acceso al mismo. Sin embargo es posible crear drivers que extiendan la funcionalidad de los volúmenes para, por ejemplo, montar un filesystem alojado en un proveedor de nube. Estos drivers pueden instalarse en la forma de  `docker plugin` mediante un proceso muy sencillo. Puede encontrar una lista de dri
+Cuando creamos un volumen, por defecto este utilizará el driver `local` para el acceso al mismo. Sin embargo es posible crear drivers que extiendan la funcionalidad de los volúmenes para, por ejemplo, montar un filesystem alojado en un proveedor de nube. Estos drivers pueden instalarse en la forma de  `docker plugin` mediante un proceso muy sencillo.
 
 A continuación exploraremos este mecanismo con un par de ejemplos.
 
@@ -487,8 +486,8 @@ Ahora creamos el volumen
 
 ```bash
 $ docker volume create --driver vieux/sshfs \
-  -o sshcmd=ubuntu@sshserver.labs.conatest.click:/home/ubuntu/docker101 \
-  -o password=conatel_docker101 \
+  -o sshcmd=ubuntu@sshserver:/home/ubuntu/docker101 \
+  -o password=docker101 \
   sshvolume
 
 $ docker volume ls
