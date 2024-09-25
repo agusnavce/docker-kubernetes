@@ -33,11 +33,11 @@ Kubernetes ofrece numerosos beneficios que lo hacen atractivo para organizacione
 9. **Gestión declarativa**: Permite describir el estado deseado del sistema, y Kubernetes se encarga de mantener ese estado.
 10. **Comunidad activa**: Cuenta con una de las comunidades de código abierto más grandes y activas, lo que garantiza soporte continuo y mejoras.
 
-## Conceptos clave y arquitectura
+# Conceptos clave y arquitectura
 
-# Clusters de Kubernetes
+## Clusters de Kubernetes
 
-## ¿Qué es un cluster de Kubernetes y por qué lo necesitamos?
+### ¿Qué es un cluster de Kubernetes y por qué lo necesitamos?
 
 Un cluster de Kubernetes es un conjunto de máquinas, llamadas nodos, que trabajan juntas para ejecutar aplicaciones containerizadas de manera eficiente y escalable. Estos clusters son el corazón de cualquier implementación de Kubernetes y proporcionan el entorno en el que se despliegan, gestionan y escalan las aplicaciones.
 

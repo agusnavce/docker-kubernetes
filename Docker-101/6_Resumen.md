@@ -1,5 +1,3 @@
-Aquí tienes una versión mejorada y más detallada del resumen en formato Markdown:
-
 # Resumen Completo de Docker
 
 ## Conceptos Fundamentales
@@ -24,7 +22,8 @@ Aquí tienes una versión mejorada y más detallada del resumen en formato Markd
 - `docker build`: Construye una imagen a partir de un Dockerfile.
 - `docker pull`: Descarga una imagen desde un registro (como DockerHub).
 - `docker push`: Sube una imagen a un registro.
-- 
+
+
 ## Almacenamiento en Docker
 
 - **Volúmenes**: 
