@@ -2082,537 +2082,255 @@ spec:
 
 10. **Pruebas**: Realiza pruebas exhaustivas de tus Jobs y CronJobs, incluyendo escenarios de fallo y recuperación.
 
-## Relaciones entre objetos
+### ConfigMaps y Secrets
 
-Entender cómo se relacionan estos objetos es crucial para diseñar y gestionar aplicaciones en Kubernetes de manera eficiente:
+#### ConfigMaps
 
-- **Deployments y ReplicaSets**: Los Deployments gestionan ReplicaSets, que a su vez gestionan Pods. Los Deployments proporcionan capacidades adicionales como actualizaciones rolling y rollbacks.
+Los ConfigMaps son objetos de Kubernetes utilizados para almacenar datos de configuración no confidenciales en formato clave-valor. Permiten separar la configuración de la imagen del contenedor, haciendo las aplicaciones más portables.
 
-- **DaemonSets y StatefulSets**: Estos objetos gestionan directamente los Pods, pero con comportamientos específicos. DaemonSets aseguran que los Pods se ejecuten en todos o algunos nodos, mientras que StatefulSets proporcionan garantías de orden y unicidad.
-
-- **Jobs y CronJobs**: Estos objetos crean y gestionan Pods para tareas específicas o programadas. Los CronJobs crean Jobs según un horario definido.
-
-- **Services y Pods**: Los Services proporcionan una abstracción para exponer grupos de Pods como un servicio de red.
-
-Al diseñar aplicaciones para Kubernetes, es importante considerar qué tipo de objeto es más adecuado para cada componente de la aplicación. Por ejemplo:
-
-- Usa Deployments para aplicaciones sin estado que pueden escalarse horizontalmente.
-- Utiliza StatefulSets para bases de datos o aplicaciones que requieren identidades de red estables y almacenamiento persistente.
-- Implementa DaemonSets para servicios que deben ejecutarse en todos los nodos.
-- Emplea Jobs y CronJobs para tareas de procesamiento por lotes o programadas.
-
-Al comprender estas relaciones y características, podrás aprovechar al máximo las capacidades de Kubernetes para desplegar y gestionar aplicaciones de manera eficiente y robusta.
-
-# Ejercicio Despliegue de una Aplicación Web Completa
-
-## Escenario
-
-Eres el DevOps engineer en una startup que ha desarrollado una aplicación web de comercio electrónico. La aplicación consiste en un frontend, un backend API, una base de datos, un sistema de logging, y algunas tareas programadas para mantenimiento. Tu tarea es desplegar esta aplicación en Kubernetes, aprovechando los diferentes objetos que hemos aprendido.
-
-## Componentes de la Aplicación
-
-1. Frontend (React): Deployment
-2. Backend API (Node.js): Deployment
-3. Base de datos (PostgreSQL): StatefulSet
-4. Sistema de logging (Fluentd): DaemonSet
-5. Tarea de limpieza de la base de datos: CronJob
-6. Tarea de generación de informes: Job
-
-## Pasos del Ejercicio
-
-### 1. Crear un Namespace
-
-Primero, crearemos un namespace para nuestra aplicación.
+##### Estructura YAML de un ConfigMap:
 
 ```yaml
 apiVersion: v1
-kind: Namespace
+kind: ConfigMap
 metadata:
-  name: ecommerce
+  name: mi-configmap
+data:
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  app.properties: |
+    property1=value1
+    property2=value2
+  config.json: |
+    {
+      "key": "value"
+    }
 ```
 
-Guarda esto como `namespace.yaml` y aplícalo:
+##### Características clave:
+- Pueden contener strings arbitrarios o archivos completos.
+- Se pueden usar como variables de entorno, argumentos de comando o archivos de configuración en un volumen.
+- No ofrecen encriptación; para datos sensibles, se deben usar Secrets.
 
-```bash
-kubectl apply -f namespace.yaml
-```
+#### Secrets
 
-Después de aplicar el namespace, verifica su creación:
+Los Secrets son similares a los ConfigMaps, pero están diseñados para almacenar información sensible como contraseñas, tokens o claves. Kubernetes proporciona algunas protecciones adicionales para los Secrets.
 
-```bash
-kubectl get namespaces
-```
-
-**Pregunta**: ¿Por qué es útil crear un namespace separado para nuestra aplicación?
-
-
-<details>
-<summary>Solución</summary>
-<p>Los namespaces ayudan a organizar y aislar los recursos en un cluster. Esto es especialmente útil en entornos compartidos o para separar diferentes aplicaciones o entornos (como desarrollo, pruebas y producción).</p>
-</details>
-
-### 2. Desplegar la Base de Datos (StatefulSet)
-
-Crea un archivo `postgres-statefulset.yaml`:
+##### Estructura YAML de un Secret:
 
 ```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-  namespace: ecommerce
-spec:
-  serviceName: "postgres"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:13
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_DB
-          value: ecommercedb
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: postgres-password
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-storage
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 1Gi
----
 apiVersion: v1
-kind: Service
+kind: Secret
 metadata:
-  name: postgres
-  namespace: ecommerce
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
+  name: mi-secret
+type: Opaque
+data:
+  username: dXNlcm5hbWU=  # Base64 encoded
+  password: cGFzc3dvcmQ=  # Base64 encoded
 ```
 
-Crea un Secret para la contraseña de PostgreSQL:
+##### Características clave:
+- Los valores deben estar codificados en Base64.
+- Pueden ser montados como archivos en volúmenes o usados como variables de entorno.
+- Kubernetes almacena los Secrets de forma más segura que los ConfigMaps.
+- Existen diferentes tipos de Secrets para casos de uso específicos (e.g., docker-registry, tls).
 
-```bash
-kubectl create secret generic postgres-secret --from-literal=postgres-password=mypassword -n ecommerce
+#### Uso en Pods
+
+Tanto ConfigMaps como Secrets pueden ser utilizados en Pods de la siguiente manera:
+
+1. Como variables de entorno:
+```yaml
+env:
+  - name: DB_HOST
+    valueFrom:
+      configMapKeyRef:
+        name: mi-configmap
+        key: DB_HOST
 ```
 
-Aplica el StatefulSet:
-
-```bash
-kubectl apply -f postgres-statefulset.yaml
+2. Como volúmenes:
+```yaml
+volumes:
+  - name: config
+    configMap:
+      name: mi-configmap
 ```
 
-Después de aplicar el StatefulSet, verifica su creación:
+#### Mejores prácticas:
+- Usa ConfigMaps para datos no sensibles y Secrets para información confidencial.
+- Actualiza los ConfigMaps y Secrets independientemente de los Pods que los usan.
+- Considera usar herramientas de gestión de secretos externas para entornos de producción.
+- Limita el acceso a los Secrets usando RBAC (Role-Based Access Control).
 
-```bash
-kubectl get statefulsets -n ecommerce
-kubectl get pods -n ecommerce -l app=postgres
-kubectl get pvc -n ecommerce
-```
+ConfigMaps y Secrets son fundamentales para manejar la configuración y los datos sensibles en aplicaciones de Kubernetes, permitiendo una mayor flexibilidad y seguridad en la gestión de la configuración de las aplicaciones.
 
-**Pregunta**: ¿Por qué usamos un StatefulSet para la base de datos en lugar de un Deployment?
+### Volumes y PersistentVolumes
 
-<details>
-<summary>Solución</summary>
-<p>
- Los StatefulSets son ideales para aplicaciones que requieren identificadores de red estables, almacenamiento persistente y despliegue ordenado. Las bases de datos necesitan estas características para mantener la integridad de los datos y manejar correctamente las réplicas.</p>
-</details>
+#### Volumes
 
-### 3. Desplegar el Backend API (Deployment)
+Los Volumes en Kubernetes proporcionan almacenamiento a nivel de Pod que persiste durante la vida del Pod. Son útiles para compartir datos entre contenedores en un Pod y para mantener datos temporales que sobreviven a reinicios de contenedores.
 
-Crea un archivo `backend-deployment.yaml`:
+##### Estructura YAML de un Pod con Volume:
 
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend
-  namespace: ecommerce
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: backend
-  template:
-    metadata:
-      labels:
-        app: backend
-    spec:
-      containers:
-      - name: backend
-        image: your-backend-image:v1
-        ports:
-        - containerPort: 3000
-        env:
-        - name: DB_HOST
-          value: postgres
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: postgres-password
----
 apiVersion: v1
-kind: Service
+kind: Pod
 metadata:
-  name: backend
-  namespace: ecommerce
+  name: mi-pod
 spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
+  containers:
+  - name: mi-contenedor
+    image: mi-imagen
+    volumeMounts:
+    - name: mi-volumen
+      mountPath: /data
+  volumes:
+  - name: mi-volumen
+    emptyDir: {}
 ```
 
-Aplica el Deployment:
+##### Características clave:
+- Están ligados al ciclo de vida del Pod.
+- Soportan múltiples tipos (emptyDir, hostPath, configMap, secret, etc.).
+- No son persistentes más allá de la vida del Pod.
 
-```bash
-kubectl apply -f backend-deployment.yaml
-```
+#### PersistentVolumes (PV) y PersistentVolumeClaims (PVC)
 
-Después de aplicar el Deployment, verifica su creación:
+PersistentVolumes proporcionan una abstracción para almacenamiento persistente en el cluster. PersistentVolumeClaims son solicitudes de almacenamiento por parte de los usuarios.
 
-```bash
-kubectl get deployments -n ecommerce
-kubectl get pods -n ecommerce -l app=backend
-kubectl get services -n ecommerce
-```
-
-**Pregunta**: ¿Cómo se comunica el backend con la base de datos PostgreSQL?
-
-<details>
-<summary>Solución</summary>
-<p>El backend se comunica con la base de datos utilizando el nombre del Service de PostgreSQL como hostname. Esto se configura en las variables de entorno del Deployment del backend (DB_HOST: postgres).
-</p></details>
-
-### 4. Desplegar el Frontend (Deployment)
-
-Crea un archivo `frontend-deployment.yaml`:
+##### Estructura YAML de un PersistentVolume:
 
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend
-  namespace: ecommerce
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: frontend
-  template:
-    metadata:
-      labels:
-        app: frontend
-    spec:
-      containers:
-      - name: frontend
-        image: your-frontend-image:v1
-        ports:
-        - containerPort: 80
----
 apiVersion: v1
-kind: Service
+kind: PersistentVolume
 metadata:
-  name: frontend
-  namespace: ecommerce
+  name: mi-pv
 spec:
-  selector:
-    app: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: standard
+  nfs:
+    server: nfs-server.default.svc.cluster.local
+    path: "/path/to/data"
 ```
 
-Aplica el Deployment:
-
-```bash
-kubectl apply -f frontend-deployment.yaml
-```
-
-Después de aplicar el Deployment, verifica su creación:
-
-```bash
-kubectl get deployments -n ecommerce
-kubectl get pods -n ecommerce -l app=frontend
-kubectl get services -n ecommerce
-```
-
-**Pregunta**: ¿Qué tipo de Service estamos usando para el frontend y por qué?
-
-<details>
-<summary>Solución</summary>
-<p>: Estamos usando un Service de tipo LoadBalancer para el frontend. Esto permite que el frontend sea accesible desde fuera del cluster, lo cual es necesario para que los usuarios puedan acceder a la aplicación web.</p></details>
-
-### 5. Configurar el Sistema de Logging (DaemonSet)
-
-Crea un archivo `fluentd-daemonset.yaml`:
+##### Estructura YAML de un PersistentVolumeClaim:
 
 ```yaml
-apiVersion: apps/v1
-kind: DaemonSet
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: fluentd
-  namespace: ecommerce
-  labels:
-    app: fluentd
+  name: mi-pvc
 spec:
-  selector:
-    matchLabels:
-      app: fluentd
-  template:
-    metadata:
-      labels:
-        app: fluentd
-    spec:
-      containers:
-      - name: fluentd
-        image: fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch
-        env:
-          - name: FLUENT_ELASTICSEARCH_HOST
-            value: "elasticsearch"
-          - name: FLUENT_ELASTICSEARCH_PORT
-            value: "9200"
-        volumeMounts:
-        - name: varlog
-          mountPath: /var/log
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
-          readOnly: true
-      terminationGracePeriodSeconds: 30
-      volumes:
-      - name: varlog
-        hostPath:
-          path: /var/log
-      - name: varlibdockercontainers
-        hostPath:
-          path: /var/lib/docker/containers
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
 ```
 
-Aplica el DaemonSet:
+##### Características clave:
+- PVs son recursos a nivel de cluster, independientes de los Pods.
+- PVCs son solicitudes de almacenamiento que se vinculan a PVs.
+- Permiten que los Pods accedan a almacenamiento persistente sin conocer los detalles de la implementación subyacente.
 
-```bash
-kubectl apply -f fluentd-daemonset.yaml
-```
+#### Diferencias principales:
 
-Después de aplicar el DaemonSet, verifica su creación:
+1. **Persistencia**: 
+   - Volumes: Persisten solo durante la vida del Pod.
+   - PersistentVolumes: Persisten más allá de la vida de cualquier Pod y son recursos del cluster.
 
-```bash
-kubectl get daemonsets -n ecommerce
-kubectl get pods -n ecommerce -l app=fluentd
-```
+2. **Alcance**:
+   - Volumes: Definidos y gestionados a nivel de Pod.
+   - PersistentVolumes: Recursos del cluster, gestionados independientemente de los Pods.
 
-**Pregunta**: ¿Por qué usamos un DaemonSet para el sistema de logging?
+3. **Ciclo de vida**:
+   - Volumes: Creados y eliminados con el Pod.
+   - PersistentVolumes: Pueden existir independientemente de los Pods y ser reutilizados.
 
-<details>
-<summary>Solución</summary>
-<p> Un DaemonSet asegura que un Pod se ejecute en todos (o algunos) nodos del cluster. Esto es ideal para sistemas de logging, ya que queremos recoger logs de cada nodo en el cluster.</p></details>
+4. **Abstracción**:
+   - Volumes: Los Pods necesitan conocer los detalles del almacenamiento.
+   - PersistentVolumes: Proporcionan una capa de abstracción entre los Pods y el almacenamiento subyacente.
 
-### 6. Crear una Tarea de Limpieza de la Base de Datos (CronJob)
+5. **Uso**:
+   - Volumes: Ideales para almacenamiento temporal o compartir datos entre contenedores en un Pod.
+   - PersistentVolumes: Adecuados para datos que deben persistir a largo plazo y ser accesibles por múltiples Pods.
 
-Crea un archivo `db-cleanup-cronjob.yaml`:
+Los Volumes son útiles para almacenamiento efímero y compartir datos dentro de un Pod, mientras que PersistentVolumes son esenciales para aplicaciones que requieren almacenamiento duradero y consistente, independiente del ciclo de vida de los Pods.
 
-```yaml
-apiVersion: batch/v1beta1
-kind: CronJob
-metadata:
-  name: db-cleanup
-  namespace: ecommerce
-spec:
-  schedule: "0 1 * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-          - name: db-cleanup
-            image: your-db-cleanup-image:v1
-            env:
-            - name: DB_HOST
-              value: postgres
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-password
-          restartPolicy: OnFailure
-```
+### Relaciones entre Objetos en Kubernetes
 
-Aplica el CronJob:
+Comprender cómo se relacionan los diferentes objetos en Kubernetes es fundamental para diseñar y gestionar aplicaciones de manera eficiente y robusta. Estas relaciones forman la base de la arquitectura de aplicaciones en Kubernetes.
 
-```bash
-kubectl apply -f db-cleanup-cronjob.yaml
-```
+#### 1. Pods y Contenedores
+- Los Pods son la unidad más pequeña en Kubernetes y encapsulan uno o más contenedores.
+- Los contenedores dentro de un Pod comparten recursos de red y almacenamiento.
+- Uso: Para aplicaciones estrechamente acopladas que necesitan ejecutarse y escalar juntas.
 
-Después de aplicar el CronJob, verifica su creación:
+#### 2. Deployments, ReplicaSets y Pods
+- Los Deployments gestionan ReplicaSets, que a su vez gestionan Pods.
+- Los Deployments proporcionan actualizaciones declarativas para Pods y ReplicaSets.
+- Ofrecen capacidades como actualizaciones rolling, rollbacks y escalado.
+- Uso: Para aplicaciones sin estado que requieren alta disponibilidad y fácil escalabilidad.
 
-```bash
-kubectl get cronjobs -n ecommerce
-```
+#### 3. StatefulSets y Pods
+- Los StatefulSets gestionan Pods con identidades únicas y persistentes.
+- Proporcionan garantías de orden en el despliegue y escalado.
+- Permiten el uso de almacenamiento persistente para cada Pod.
+- Uso: Para aplicaciones con estado como bases de datos, que requieren nombres de red estables y almacenamiento persistente.
 
-**Pregunta**: ¿Con qué frecuencia se ejecutará esta tarea de limpieza?
+#### 4. DaemonSets y Pods
+- Los DaemonSets aseguran que un Pod se ejecute en todos (o algunos) nodos del cluster.
+- Útiles para servicios de infraestructura que deben ejecutarse en cada nodo.
+- Uso: Para agentes de monitoreo, recolectores de logs, o servicios de red por nodo.
 
-<details>
-<summary>Solución</summary>
-<p> La tarea de limpieza se ejecutará todos los días a la 1:00 AM, según la programación cron "0 1 * * *".</p></details>
+#### 5. Jobs, CronJobs y Pods
+- Los Jobs crean uno o más Pods y aseguran que un número específico de ellos se complete con éxito.
+- Los CronJobs crean Jobs en una base programada.
+- Uso: Para tareas batch o de una sola vez, y para tareas programadas recurrentes.
 
-### 7. Crear una Tarea de Generación de Informes (Job)
+#### 6. Services y Pods
+- Los Services proporcionan una abstracción de red estable para un conjunto de Pods.
+- Ofrecen un punto de acceso único y balanceo de carga para los Pods.
+- Tipos de Services:
+  - ClusterIP: Expone el Service internamente en el cluster.
+  - NodePort: Expone el Service en un puerto estático en cada nodo.
+  - LoadBalancer: Expone el Service externamente usando un balanceador de carga del proveedor de nube.
+  - ExternalName: Mapea el Service a un nombre DNS externo.
+- Uso: Para exponer aplicaciones dentro del cluster o al mundo exterior.
 
-Crea un archivo `report-generation-job.yaml`:
+#### 7. Ingress y Services
+- Ingress gestiona el acceso externo a los Services en un cluster.
+- Puede proporcionar balanceo de carga, terminación SSL y enrutamiento basado en nombres.
+- Uso: Para manejar el tráfico HTTP y HTTPS entrante a múltiples Services.
 
-```yaml
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: report-generation
-  namespace: ecommerce
-spec:
-  template:
-    spec:
-      containers:
-      - name: report-generation
-        image: your-report-generation-image:v1
-        env:
-        - name: DB_HOST
-          value: postgres
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: postgres-password
-      restartPolicy: Never
-  backoffLimit: 4
-```
+#### 8. ConfigMaps, Secrets y Pods
+- ConfigMaps y Secrets proporcionan configuración y datos sensibles a los Pods.
+- Se pueden montar como volúmenes o exponer como variables de entorno.
+- Uso: Para separar la configuración del código y manejar información sensible.
 
-Aplica el Job:
+#### 9. Volumes, PersistentVolumes y Pods
+- Los Volumes proporcionan almacenamiento a los Pods que persiste más allá del ciclo de vida de los contenedores.
+- PersistentVolumes y PersistentVolumeClaims abstraen los detalles del proveedor de almacenamiento.
+- Uso: Para almacenamiento persistente en aplicaciones con estado.
 
-```bash
-kubectl apply -f report-generation-job.yaml
-```
+### Consideraciones de Diseño
 
-Después de aplicar el Job, verifica su creación:
+Al diseñar aplicaciones para Kubernetes, considera:
 
-```bash
-kubectl get jobs -n ecommerce
-kubectl get pods -n ecommerce -l job-name=report-generation
-```
+1. **Escalabilidad**: Usa Deployments para aplicaciones sin estado que necesitan escalar horizontalmente.
+2. **Persistencia**: Utiliza StatefulSets para aplicaciones que requieren identidades de red estables y almacenamiento persistente.
+3. **Servicios de Cluster**: Implementa DaemonSets para servicios que deben ejecutarse en todos los nodos.
+4. **Tareas Programadas**: Emplea Jobs y CronJobs para tareas de procesamiento por lotes o tareas programadas.
+5. **Exposición de Servicios**: Usa Services para exponer aplicaciones internamente y Ingress para manejar tráfico externo.
+6. **Configuración**: Utiliza ConfigMaps y Secrets para manejar la configuración y los datos sensibles.
+7. **Almacenamiento**: Considera el uso de PersistentVolumes para aplicaciones que requieren almacenamiento duradero.
 
-## Verificación y Pruebas
-
-1. Verifica que todos los componentes estén funcionando:
-
-```bash
-kubectl get all -n ecommerce
-```
-
-2. Comprueba los logs del backend:
-
-```bash
-kubectl logs -l app=backend -n ecommerce
-```
-
-3. Accede al frontend (si estás usando minikube):
-
-```bash
-minikube service frontend -n ecommerce
-```
-
-4. Verifica que el CronJob esté programado:
-
-```bash
-kubectl get cronjobs -n ecommerce
-```
-
-5. Comprueba el estado del Job de generación de informes:
-
-```bash
-kubectl get jobs -n ecommerce
-```
-
-6. Verifica que el DaemonSet de Fluentd esté ejecutándose en todos los nodos:
-
-```bash
-kubectl get pods -l app=fluentd -n ecommerce -o wide
-```
-
-## Limpieza
-
-Cuando hayas terminado, puedes eliminar todos los recursos creados:
-
-```bash
-kubectl delete namespace ecommerce
-```
-
-Este comando eliminará todos los recursos dentro del namespace.
-
-## Conclusión
-
-Este ejercicio integral te ha permitido utilizar todos los objetos principales de Kubernetes que hemos cubierto:
-
-## Verificación y Pruebas
-
-Además de los comandos de verificación proporcionados en cada sección, aquí hay algunas pruebas adicionales que puedes realizar:
-
-1. Verifica la conectividad entre el backend y la base de datos:
-
-```bash
-kubectl exec -it $(kubectl get pod -l app=backend -n ecommerce -o jsonpath='{.items[0].metadata.name}') -n ecommerce -- curl postgres:5432
-```
-
-Si la conexión es exitosa, deberías ver un mensaje de error de PostgreSQL, lo que indica que el backend puede alcanzar la base de datos.</p></details>
-
-2. Comprueba que el frontend puede comunicarse con el backend:
-
-```bash
-kubectl exec -it $(kubectl get pod -l app=frontend -n ecommerce -o jsonpath='{.items[0].metadata.name}') -n ecommerce -- curl backend
-```
-
-Deberías ver una respuesta del backend, lo que indica que la comunicación entre frontend y backend está funcionando.
-
-3. Verifica que el CronJob está programado correctamente:
-
-```bash
-kubectl get cronjob db-cleanup -n ecommerce -o jsonpath='{.spec.schedule}'
-```
-
-Esto debería mostrar la programación del CronJob.
-
-4. Comprueba los logs del sistema de logging:
-
-```bash
-kubectl logs $(kubectl get pod -l app=fluentd -n ecommerce -o jsonpath='{.items[0].metadata.name}') -n ecommerce
-```
-
-Deberías ver logs relacionados con la recopilación de logs del sistema.
-
-En una aplicación del mundo real, los diferentes objetos de Kubernetes trabajan juntos para proporcionar una infraestructura completa y robusta. Los Deployments manejan las partes de la aplicación que necesitan escalabilidad y actualizaciones fáciles (como el frontend y el backend). Los StatefulSets se utilizan para componentes que requieren estado y almacenamiento persistente (como bases de datos). Los DaemonSets aseguran que ciertos Pods se ejecuten en todos los nodos (útil para logging y monitoreo). Los Jobs y CronJobs manejan tareas únicas y recurrentes respectivamente. Los Services proporcionan abstracción de red y descubrimiento de servicios. Todos estos componentes trabajan juntos para crear una aplicación completa y escalable.
-
-
-Has desplegado una aplicación web completa con todos sus componentes, demostrando cómo estos objetos de Kubernetes trabajan juntos en un escenario del mundo real.
-
-| [&lt;-- Volver](1_Kubernetes.md) |
+| [&lt;-- Volver](1_Kubernetes.md) | [Siguiente --&gt;](3_Ejercicio.md) |
