@@ -30,6 +30,147 @@ Los Pods son la unidad más básica y fundamental en Kubernetes. Representan un 
 2. **Ambassador**: Contenedor que representa al contenedor principal para acceder a recursos externos.
 3. **Adapter**: Contenedor que estandariza y normaliza la salida del contenedor principal.
 
+## Pods
+
+![alt text](Imagenes/Pods.png "Pods")
+
+### Estructura YAML de un Pod
+
+Un archivo YAML para definir un Pod típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mi-pod
+  labels:
+    app: mi-aplicacion
+    tier: frontend
+  annotations:
+    description: "Pod de ejemplo para la documentación"
+spec:
+  containers:
+  - name: contenedor-principal
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+    resources:
+      limits:
+        cpu: "0.5"
+        memory: "256Mi"
+      requests:
+        cpu: "0.2"
+        memory: "128Mi"
+    env:
+    - name: MI_VARIABLE
+      value: "mi valor"
+    volumeMounts:
+    - name: mi-volumen
+      mountPath: /data
+  volumes:
+  - name: mi-volumen
+    emptyDir: {}
+```
+
+#### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes que se está utilizando. Para Pods, generalmente es "v1".
+
+2. **kind**: Indica el tipo de objeto que se está definiendo, en este caso "Pod".
+
+3. **metadata**: Contiene información que ayuda a identificar únicamente al Pod.
+   - **name**: El nombre del Pod.
+   - **labels**: Etiquetas clave-valor para organizar y seleccionar Pods.
+   - **annotations**: Metadatos adicionales para herramientas externas o para uso interno.
+
+4. **spec**: Define la configuración deseada del Pod.
+   - **containers**: Lista de contenedores en el Pod.
+     - **name**: Nombre del contenedor.
+     - **image**: Imagen de Docker a utilizar.
+     - **ports**: Puertos que el contenedor expone.
+     - **resources**: Especifica los recursos (CPU y memoria) que el contenedor necesita.
+     - **env**: Variables de entorno para el contenedor.
+     - **volumeMounts**: Puntos de montaje para volúmenes en el contenedor.
+   - **volumes**: Define los volúmenes que pueden ser montados por los contenedores en el Pod.
+
+#### Campos adicionales opcionales:
+
+- **restartPolicy**: Define cuándo reiniciar el Pod (Always, OnFailure, Never).
+- **nodeSelector**: Especifica en qué nodos puede ejecutarse el Pod.
+- **affinity**: Reglas más detalladas sobre la ubicación del Pod.
+- **tolerations**: Permite que el Pod se ejecute en nodos con taints específicos.
+- **initContainers**: Contenedores que se ejecutan antes que los contenedores principales.
+- **securityContext**: Configura ajustes de seguridad para el Pod.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **Pod con múltiples contenedores**:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-multicontenedor
+spec:
+  containers:
+  - name: contenedor-web
+    image: nginx
+  - name: contenedor-logger
+    image: fluent/fluentd
+```
+
+2. **Pod con volumen compartido**:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-volumen-compartido
+spec:
+  containers:
+  - name: contenedor1
+    image: busybox
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data
+  - name: contenedor2
+    image: busybox
+    volumeMounts:
+    - name: shared-data
+      mountPath: /data
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+```
+
+3. **Pod con configuración de recursos**:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-recursos
+spec:
+  containers:
+  - name: contenedor-principal
+    image: nginx
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+```
+
+### Mejores Prácticas para Definir Pods
+
+1. **Uso de etiquetas**: Utiliza etiquetas significativas para organizar y seleccionar Pods.
+2. **Límites de recursos**: Siempre especifica límites de recursos para evitar que un Pod consuma demasiados recursos del nodo.
+3. **Seguridad**: Utiliza securityContext para configurar ajustes de seguridad.
+4. **Afinidad y anti-afinidad**: Usa reglas de afinidad para controlar la ubicación de los Pods.
+5. **Init containers**: Utiliza init containers para tareas de inicialización antes de que se inicien los contenedores principales.
+
 ### Ejercicio Práctico: Creación y Manipulación de Pods
 
 #### Objetivo
@@ -132,6 +273,326 @@ En este ejercicio, crearemos un Pod, examinaremos su estado y estructura, y real
 
 7. **Efimeral por diseño**: Diseña tus aplicaciones asumiendo que los Pods son efímeros y pueden ser reemplazados en cualquier momento.
 
+
+## Services
+
+Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible en la red, ya sea dentro del cluster o externamente.
+
+#### Características clave:
+
+- **Descubrimiento de servicios**: Proporcionan un nombre DNS estable para un conjunto de Pods.
+- **Balanceo de carga**: Distribuyen el tráfico entre los Pods asociados.
+- **Abstracción de red**: Ocultan la complejidad de la red subyacente y los cambios en los Pods.
+- **Exposición de aplicaciones**: Permiten exponer aplicaciones fuera del cluster.
+
+#### Tipos de Services:
+1. **ClusterIP**: Expone el Service en una IP interna del cluster. Es el tipo por defecto.
+2. **NodePort**: Expone el Service en el mismo puerto de cada nodo seleccionado en el cluster.
+3. **LoadBalancer**: Expone el Service externamente usando el balanceador de carga del proveedor de nube.
+4. **ExternalName**: Mapea el Service a un nombre DNS externo.
+
+#### Anatomía de un Service:
+1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
+2. **Spec**: 
+   - `selector`: Define qué Pods son parte del Service.
+   - `ports`: Especifica los puertos que el Service expone.
+   - `type`: Determina cómo se expone el Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
+3. **Status**: Contiene la IP asignada al Service y otra información de estado.
+
+
+### Estructura YAML de un Service
+
+Un archivo YAML para definir un Service típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mi-servicio
+spec:
+  selector:
+    app: mi-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+  type: ClusterIP
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para Services, es "v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "Service".
+
+3. **metadata**: Contiene información para identificar únicamente al Service.
+   - **name**: El nombre del Service.
+
+4. **spec**: Define la configuración deseada del Service.
+   - **selector**: Define qué Pods serán expuestos por este Service.
+   - **ports**: Especifica los puertos que el Service expondrá.
+   - **type**: Define el tipo de Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
+
+### Campos adicionales opcionales:
+
+- **externalIPs**: Lista de IPs externas a las que debe enrutar el Service.
+- **sessionAffinity**: Define si las solicitudes del mismo cliente se redirigen al mismo Pod.
+- **clusterIP**: IP asignada al Service dentro del cluster.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **Service de tipo ClusterIP para comunicación interna**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+```
+
+2. **Service de tipo NodePort para exposición externa**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30007
+  type: NodePort
+```
+
+3. **Service de tipo LoadBalancer para exposición en la nube**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+  type: LoadBalancer
+```
+
+4. **Service de tipo ExternalName para mapeo a un nombre DNS externo**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: prod
+spec:
+  type: ExternalName
+  externalName: my.database.example.com
+```
+
+### Ejercicio Práctico: Creación y Manipulación de Services
+
+#### Objetivo
+En este ejercicio, crearemos diferentes tipos de Services para una aplicación web simple y exploraremos cómo interactúan con los Pods.
+
+#### Pasos
+
+1. **Crear un Deployment para nuestra aplicación**
+
+Crea un archivo llamado `web-deployment.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
+Aplica el Deployment:
+
+```bash
+kubectl apply -f web-deployment.yaml
+```
+
+2. **Crear un Service de tipo ClusterIP**
+
+Crea un archivo llamado `clusterip-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+spec:
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f clusterip-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-clusterip
+```
+
+3. **Crear un Service de tipo NodePort**
+
+Crea un archivo llamado `nodeport-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f nodeport-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-nodeport
+```
+
+4. **Crear un Service de tipo LoadBalancer**
+
+Nota: Este tipo de Service requiere un proveedor de nube que soporte balanceadores de carga externos.
+
+Crea un archivo llamado `loadbalancer-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-loadbalancer
+spec:
+  type: LoadBalancer
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f loadbalancer-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-loadbalancer
+```
+
+5. **Probar los Services**
+
+Para el Service ClusterIP:
+```bash
+kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
+/ # apk add --no-cache curl
+/ # curl web-clusterip
+```
+
+Para el Service NodePort (asumiendo que estás usando minikube):
+```bash
+minikube service web-nodeport --url
+```
+
+Luego, abre la URL proporcionada en tu navegador.
+
+Para el Service LoadBalancer (si estás en un proveedor de nube):
+```bash
+kubectl get services web-loadbalancer
+```
+Usa la IP externa proporcionada para acceder al servicio.
+
+6. **Limpiar**
+
+Elimina todos los recursos creados:
+
+```bash
+kubectl delete -f web-deployment.yaml
+kubectl delete -f clusterip-service.yaml
+kubectl delete -f nodeport-service.yaml
+kubectl delete -f loadbalancer-service.yaml
+```
+
+### Mejores Prácticas para Services
+
+1. **Uso de selectores**: Utiliza selectores de etiquetas precisos para asociar los Services con los Pods correctos.
+
+2. **Nombrado consistente**: Usa un esquema de nombrado consistente para tus Services para facilitar la gestión.
+
+3. **Exposición mínima**: Utiliza ClusterIP para servicios internos y expón externamente solo cuando sea necesario.
+
+4. **Uso de anotaciones**: Aprovecha las anotaciones para configuraciones específicas del proveedor de nube.
+
+5. **Monitoreo**: Implementa monitoreo para tus Services para detectar problemas de conectividad o balanceo de carga.
+
+6. **Seguridad**: Utiliza NetworkPolicies junto con Services para controlar el tráfico de red.
+
+7. **Pruebas de conectividad**: Realiza pruebas regulares para asegurar que los Services están funcionando correctamente.
+
+8. **Documentación**: Documenta el propósito y las dependencias de cada Service en tu aplicación.
+
 ## ReplicaSets
 
 ![alt text](Imagenes/Replica.png "ReplicaSet")
@@ -163,6 +624,89 @@ Un ReplicaSet es un objeto de Kubernetes que asegura que un número específico 
 - Mantener un conjunto estable de Pods replicados ejecutándose en todo momento.
 - Garantizar la disponibilidad de un número específico de Pods idénticos.
 - Escalar horizontalmente una aplicación aumentando el número de réplicas.
+
+### Estructura YAML de un ReplicaSet
+
+Un archivo YAML para definir un ReplicaSet típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mi-replicaset
+  labels:
+    app: mi-aplicacion
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mi-aplicacion
+  template:
+    metadata:
+      labels:
+        app: mi-aplicacion
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.2"
+            memory: "128Mi"
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes que se está utilizando. Para ReplicaSets, es "apps/v1".
+
+2. **kind**: Indica el tipo de objeto que se está definiendo, en este caso "ReplicaSet".
+
+3. **metadata**: Contiene información que ayuda a identificar únicamente al ReplicaSet.
+   - **name**: El nombre del ReplicaSet.
+   - **labels**: Etiquetas clave-valor para organizar y seleccionar ReplicaSets.
+
+4. **spec**: Define la configuración deseada del ReplicaSet.
+   - **replicas**: Número deseado de réplicas de Pods.
+   - **selector**: Define cómo el ReplicaSet identifica qué Pods gestionar.
+     - **matchLabels**: Etiquetas que deben coincidir con las de los Pods.
+   - **template**: Plantilla para los Pods que el ReplicaSet creará.
+     - **metadata**: Metadatos para los Pods creados.
+     - **spec**: Especificación de los Pods, incluyendo los contenedores.
+
+### Campos adicionales opcionales:
+
+- **minReadySeconds**: Tiempo mínimo que un Pod nuevo debe estar listo sin ningún contenedor fallando para considerarse disponible.
+- **progressDeadlineSeconds**: Tiempo máximo para que el ReplicaSet progrese antes de que se considere fallido.
+
+### Ejemplo de Casos de Uso Comunes
+
+1. **ReplicaSet con múltiples réplicas**:
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google_samples/gb-frontend:v3
+```
 
 ### Ejercicio Práctico: Creación y Manipulación de ReplicaSets
 
@@ -279,8 +823,6 @@ En este ejercicio, crearemos un ReplicaSet, examinaremos su comportamiento y rea
 
 ## Deployments
 
-### Explicación Detallada
-
 Un Deployment es un objeto de Kubernetes que proporciona actualizaciones declarativas para Pods y ReplicaSets. Los Deployments permiten describir el ciclo de vida deseado de una aplicación, incluyendo qué imágenes usar, el número de Pods que deben ejecutarse y cómo deben actualizarse.
 
 #### Características clave:
@@ -309,6 +851,133 @@ Un Deployment es un objeto de Kubernetes que proporciona actualizaciones declara
 - Actualizaciones controladas y graduales de aplicaciones.
 - Rollbacks rápidos a versiones anteriores en caso de problemas.
 - Pausar y reanudar actualizaciones para pruebas A/B o despliegues canary.
+
+### Estructura YAML de un Deployment
+
+Un archivo YAML para definir un Deployment típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mi-deployment
+  labels:
+    app: mi-aplicacion
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mi-aplicacion
+  template:
+    metadata:
+      labels:
+        app: mi-aplicacion
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.2"
+            memory: "128Mi"
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para Deployments, es "apps/v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "Deployment".
+
+3. **metadata**: Contiene información para identificar únicamente al Deployment.
+   - **name**: El nombre del Deployment.
+   - **labels**: Etiquetas para organizar y seleccionar Deployments.
+
+4. **spec**: Define la configuración deseada del Deployment.
+   - **replicas**: Número deseado de réplicas de Pods.
+   - **selector**: Define cómo el Deployment identifica qué Pods gestionar.
+   - **template**: Plantilla para los Pods que el Deployment creará.
+   - **strategy**: Define cómo se realizarán las actualizaciones de los Pods.
+
+### Campos adicionales opcionales:
+
+- **minReadySeconds**: Tiempo mínimo antes de considerar un Pod como listo.
+- **revisionHistoryLimit**: Número de ReplicaSets antiguos a retener para permitir rollbacks.
+- **paused**: Si está en true, pausa el Deployment.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **Deployment con estrategia de actualización personalizada**:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+```
+
+2. **Deployment con sondas de salud**:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: node-app
+        image: my-node-app:v1.2.3
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 3000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+```
 
 ### Ejercicio Práctico: Creación y Manipulación de Deployments
 
@@ -468,6 +1137,147 @@ Un DaemonSet es un objeto de Kubernetes que asegura que todos (o algunos) nodos 
 - Ejecutar agentes de almacenamiento distribuido en cada nodo.
 - Ejecutar proxies de red o VPN en cada nodo.
 
+### Estructura YAML de un DaemonSet
+
+Un archivo YAML para definir un DaemonSet típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: mi-daemonset
+  labels:
+    app: mi-aplicacion
+spec:
+  selector:
+    matchLabels:
+      name: mi-aplicacion
+  template:
+    metadata:
+      labels:
+        name: mi-aplicacion
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: mi-imagen:v1.0
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para DaemonSets, es "apps/v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "DaemonSet".
+
+3. **metadata**: Contiene información para identificar únicamente al DaemonSet.
+   - **name**: El nombre del DaemonSet.
+   - **labels**: Etiquetas para organizar y seleccionar DaemonSets.
+
+4. **spec**: Define la configuración deseada del DaemonSet.
+   - **selector**: Define cómo el DaemonSet identifica qué Pods gestionar.
+   - **template**: Plantilla para los Pods que el DaemonSet creará.
+   - **tolerations**: Permite que los Pods se ejecuten en nodos con taints específicos.
+
+### Campos adicionales opcionales:
+
+- **updateStrategy**: Define cómo se deben actualizar los Pods del DaemonSet.
+- **minReadySeconds**: Tiempo mínimo antes de considerar un Pod como listo.
+- **revisionHistoryLimit**: Número de revisiones antiguas a retener.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **DaemonSet para recolección de logs**:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
+        name: fluentd-elasticsearch
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+```
+
+2. **DaemonSet para monitoreo de nodos**:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    k8s-app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      name: node-exporter
+  template:
+    metadata:
+      labels:
+        name: node-exporter
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter:v1.0.1
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+        volumeMounts:
+        - name: proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: sys
+          mountPath: /host/sys
+          readOnly: true
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+```
+
 ### Ejercicio Práctico: Creación y Manipulación de DaemonSets
 
 #### Objetivo
@@ -598,8 +1408,6 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
 
 ## StatefulSets
 
-### Explicación Detallada
-
 Un StatefulSet es un objeto de Kubernetes utilizado para gestionar aplicaciones con estado. Proporciona garantías sobre el orden y la unicidad de los Pods, lo que lo hace ideal para aplicaciones que requieren uno o más de los siguientes:
 
 - Identificadores de red estables y únicos.
@@ -629,6 +1437,166 @@ Un StatefulSet es un objeto de Kubernetes utilizado para gestionar aplicaciones 
 - Sistemas de mensajería y colas (como Kafka).
 - Sistemas de almacenamiento distribuido.
 - Aplicaciones que requieren nombres de host estables.
+
+### Estructura YAML de un StatefulSet
+
+Un archivo YAML para definir un StatefulSet típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mi-statefulset
+spec:
+  serviceName: "mi-servicio"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mi-app
+  template:
+    metadata:
+      labels:
+        app: mi-app
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: mi-imagen:v1.0
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: mi-volumen-persistente
+          mountPath: /datos
+  volumeClaimTemplates:
+  - metadata:
+      name: mi-volumen-persistente
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "mi-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para StatefulSets, es "apps/v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "StatefulSet".
+
+3. **metadata**: Contiene información para identificar únicamente al StatefulSet.
+   - **name**: El nombre del StatefulSet.
+
+4. **spec**: Define la configuración deseada del StatefulSet.
+   - **serviceName**: El nombre del servicio headless que controla el dominio de red del StatefulSet.
+   - **replicas**: Número deseado de réplicas de Pods.
+   - **selector**: Define cómo el StatefulSet identifica qué Pods gestionar.
+   - **template**: Plantilla para los Pods que el StatefulSet creará.
+   - **volumeClaimTemplates**: Define plantillas para crear PersistentVolumeClaims para cada Pod.
+
+### Campos adicionales opcionales:
+
+- **updateStrategy**: Define cómo se deben actualizar los Pods del StatefulSet.
+- **podManagementPolicy**: Controla cómo se crean y eliminan los Pods.
+- **revisionHistoryLimit**: Número de revisiones antiguas a retener.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **StatefulSet para una base de datos distribuida**:
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: cassandra
+spec:
+  serviceName: cassandra
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      containers:
+      - name: cassandra
+        image: gcr.io/google-samples/cassandra:v13
+        ports:
+        - containerPort: 7000
+          name: intra-node
+        - containerPort: 7001
+          name: tls-intra-node
+        - containerPort: 7199
+          name: jmx
+        - containerPort: 9042
+          name: cql
+        volumeMounts:
+        - name: cassandra-data
+          mountPath: /cassandra_data
+  volumeClaimTemplates:
+  - metadata:
+      name: cassandra-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 1Gi
+```
+
+2. **StatefulSet para un cluster de Elasticsearch**:
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: es-cluster
+spec:
+  serviceName: elasticsearch
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      containers:
+      - name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+        env:
+        - name: cluster.name
+          value: k8s-logs
+        - name: node.name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: discovery.seed_hosts
+          value: "es-cluster-0.elasticsearch,es-cluster-1.elasticsearch,es-cluster-2.elasticsearch"
+        - name: cluster.initial_master_nodes
+          value: "es-cluster-0,es-cluster-1,es-cluster-2"
+        - name: ES_JAVA_OPTS
+          value: "-Xms512m -Xmx512m"
+        ports:
+        - containerPort: 9200
+          name: rest
+        - containerPort: 9300
+          name: inter-node
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "standard"
+      resources:
+        requests:
+          storage: 10Gi
+```
 
 ### Ejercicio Práctico: Creación y Manipulación de StatefulSets
 
@@ -839,6 +1807,139 @@ Características clave de CronJobs:
    - `failedJobsHistoryLimit`: Número de Jobs fallidos a mantener.
 3. **Status**: Información sobre la última vez que se ejecutó el CronJob y la próxima ejecución programada.
 
+### Estructura YAML de un Job
+
+Un archivo YAML para definir un Job típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mi-job
+spec:
+  template:
+    metadata:
+      name: mi-job
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: mi-imagen:tag
+        command: ["/bin/sh", "-c", "echo Hello from the Kubernetes cluster"]
+      restartPolicy: Never
+  backoffLimit: 4
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para Jobs, es "batch/v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "Job".
+
+3. **metadata**: Contiene información para identificar únicamente al Job.
+   - **name**: El nombre del Job.
+
+4. **spec**: Define la configuración deseada del Job.
+   - **template**: Plantilla para los Pods que el Job creará.
+   - **backoffLimit**: Número de reintentos antes de marcar el Job como fallido.
+
+### Campos adicionales opcionales:
+
+- **completions**: Número de Pods que deben completarse con éxito.
+- **parallelism**: Número máximo de Pods que pueden ejecutarse en paralelo.
+- **activeDeadlineSeconds**: Tiempo límite para la ejecución del Job.
+
+### Estructura YAML de un CronJob
+
+Un archivo YAML para definir un CronJob típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mi-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mi-contenedor
+            image: mi-imagen:tag
+            args:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para CronJobs, es "batch/v1beta1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "CronJob".
+
+3. **metadata**: Contiene información para identificar únicamente al CronJob.
+   - **name**: El nombre del CronJob.
+
+4. **spec**: Define la configuración deseada del CronJob.
+   - **schedule**: Especifica cuándo y con qué frecuencia se ejecutará el Job.
+   - **jobTemplate**: Plantilla para los Jobs que el CronJob creará.
+
+### Campos adicionales opcionales:
+
+- **startingDeadlineSeconds**: Límite de tiempo para iniciar el Job si se retrasa el inicio programado.
+- **concurrencyPolicy**: Define cómo manejar ejecuciones concurrentes.
+- **suspend**: Si está en true, suspende las ejecuciones subsiguientes.
+- **successfulJobsHistoryLimit**: Número de Jobs completados con éxito a mantener.
+- **failedJobsHistoryLimit**: Número de Jobs fallidos a mantener.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **Job para una tarea de procesamiento por lotes**:
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-job
+spec:
+  template:
+    metadata:
+      name: batch-job
+    spec:
+      containers:
+      - name: batch-job
+        image: python:3.7
+        command: ["python",  "-c", "import time; print('starting'); time.sleep(30); print('done')"]
+      restartPolicy: Never
+  backoffLimit: 4
+```
+
+2. **CronJob para una tarea de respaldo programada**:
+
+```yaml
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: database-backup
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: database-backup
+            image: my-backup-image:v1
+            env:
+            - name: DB_HOST
+              value: my-database-host
+            - name: BACKUP_LOCATION
+              value: /backups
+          restartPolicy: OnFailure
+```
+
 ### Ejercicio Práctico: Creación y Manipulación de Jobs y CronJobs
 
 #### Parte 1: Jobs
@@ -980,218 +2081,6 @@ Características clave de CronJobs:
 9. **Zona horaria**: Ten en cuenta la zona horaria del cluster al programar CronJobs.
 
 10. **Pruebas**: Realiza pruebas exhaustivas de tus Jobs y CronJobs, incluyendo escenarios de fallo y recuperación.
-
-## Services
-
-Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible en la red, ya sea dentro del cluster o externamente.
-
-#### Características clave:
-- **Descubrimiento de servicios**: Proporcionan un nombre DNS estable para un conjunto de Pods.
-- **Balanceo de carga**: Distribuyen el tráfico entre los Pods asociados.
-- **Abstracción de red**: Ocultan la complejidad de la red subyacente y los cambios en los Pods.
-- **Exposición de aplicaciones**: Permiten exponer aplicaciones fuera del cluster.
-
-#### Tipos de Services:
-1. **ClusterIP**: Expone el Service en una IP interna del cluster. Es el tipo por defecto.
-2. **NodePort**: Expone el Service en el mismo puerto de cada nodo seleccionado en el cluster.
-3. **LoadBalancer**: Expone el Service externamente usando el balanceador de carga del proveedor de nube.
-4. **ExternalName**: Mapea el Service a un nombre DNS externo.
-
-#### Anatomía de un Service:
-1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
-2. **Spec**: 
-   - `selector`: Define qué Pods son parte del Service.
-   - `ports`: Especifica los puertos que el Service expone.
-   - `type`: Determina cómo se expone el Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
-3. **Status**: Contiene la IP asignada al Service y otra información de estado.
-
-### Ejercicio Práctico: Creación y Manipulación de Services
-
-#### Objetivo
-En este ejercicio, crearemos diferentes tipos de Services para una aplicación web simple y exploraremos cómo interactúan con los Pods.
-
-#### Pasos
-
-1. **Crear un Deployment para nuestra aplicación**
-
-Crea un archivo llamado `web-deployment.yaml`:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web
-  template:
-    metadata:
-      labels:
-        app: web
-    spec:
-      containers:
-      - name: web
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-```
-
-Aplica el Deployment:
-
-```bash
-kubectl apply -f web-deployment.yaml
-```
-
-2. **Crear un Service de tipo ClusterIP**
-
-Crea un archivo llamado `clusterip-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-clusterip
-spec:
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f clusterip-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-clusterip
-```
-
-3. **Crear un Service de tipo NodePort**
-
-Crea un archivo llamado `nodeport-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-nodeport
-spec:
-  type: NodePort
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f nodeport-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-nodeport
-```
-
-4. **Crear un Service de tipo LoadBalancer**
-
-Nota: Este tipo de Service requiere un proveedor de nube que soporte balanceadores de carga externos.
-
-Crea un archivo llamado `loadbalancer-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-loadbalancer
-spec:
-  type: LoadBalancer
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f loadbalancer-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-loadbalancer
-```
-
-5. **Probar los Services**
-
-Para el Service ClusterIP:
-```bash
-kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
-/ # apk add --no-cache curl
-/ # curl web-clusterip
-```
-
-Para el Service NodePort (asumiendo que estás usando minikube):
-```bash
-minikube service web-nodeport --url
-```
-
-Luego, abre la URL proporcionada en tu navegador.
-
-Para el Service LoadBalancer (si estás en un proveedor de nube):
-```bash
-kubectl get services web-loadbalancer
-```
-Usa la IP externa proporcionada para acceder al servicio.
-
-6. **Limpiar**
-
-Elimina todos los recursos creados:
-
-```bash
-kubectl delete -f web-deployment.yaml
-kubectl delete -f clusterip-service.yaml
-kubectl delete -f nodeport-service.yaml
-kubectl delete -f loadbalancer-service.yaml
-```
-
-### Mejores Prácticas para Services
-
-1. **Uso de selectores**: Utiliza selectores de etiquetas precisos para asociar los Services con los Pods correctos.
-
-2. **Nombrado consistente**: Usa un esquema de nombrado consistente para tus Services para facilitar la gestión.
-
-3. **Exposición mínima**: Utiliza ClusterIP para servicios internos y expón externamente solo cuando sea necesario.
-
-4. **Uso de anotaciones**: Aprovecha las anotaciones para configuraciones específicas del proveedor de nube.
-
-5. **Monitoreo**: Implementa monitoreo para tus Services para detectar problemas de conectividad o balanceo de carga.
-
-6. **Seguridad**: Utiliza NetworkPolicies junto con Services para controlar el tráfico de red.
-
-7. **Pruebas de conectividad**: Realiza pruebas regulares para asegurar que los Services están funcionando correctamente.
-
-8. **Documentación**: Documenta el propósito y las dependencias de cada Service en tu aplicación.
-
 
 ## Relaciones entre objetos
 
