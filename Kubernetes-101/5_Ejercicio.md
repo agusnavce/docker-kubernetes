@@ -386,67 +386,14 @@ spec:
 <details>
     <summary>Solución</summary>
 
-1. Crea un Dockerfile para el frontend en un directorio llamado `frontend`:
 
-```Dockerfile
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/index.html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-```
-
-2. Crea un archivo `index.html`:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Shopping App</title>
-</head>
-<body>
-    <h1>Welcome to our Shopping App!</h1>
-    <div id="products"></div>
-    <script>
-        fetch('/api/products')
-            .then(response => response.json())
-            .then(products => {
-                const productList = document.getElementById('products');
-                products.forEach(product => {
-                    const item = document.createElement('p');
-                    item.textContent = `${product.name}: $${product.price}`;
-                    productList.appendChild(item);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-    </script>
-</body>
-</html>
-```
-
-3. Crea un archivo `nginx.conf`:
-
-```nginx
-server {
-    listen 80;
-    server_name localhost;
-
-    location / {
-        root   /usr/share/nginx/html;
-        index  index.html index.htm;
-    }
-
-    location /api {
-        proxy_pass http://shopping-api-service:5000;
-    }
-}
-```
-
-4. Construye la imagen Docker:
+1. Construye la imagen Docker:
 
 ```bash
 docker build -t shopping-frontend:v1 frontend
 ```
 
-5. Crea un ConfigMap para la URL del API:
+2. Crea un ConfigMap para el index.html:
 
 ```yaml
 apiVersion: v1
@@ -457,13 +404,13 @@ data:
   API_URL: "http://shopping-api-service:5000"
 ```
 
-6. Aplica el ConfigMap:
+3. Aplica el ConfigMap:
 
 ```bash
-kubectl apply -f frontend-config.yaml
+kubectl apply -f frontend-configmap.yaml
 ```
 
-7. Completa el Deployment YAML:
+4. Completa el Deployment YAML:
 
 ```yaml
 apiVersion: apps/v1
@@ -471,7 +418,7 @@ kind: Deployment
 metadata:
   name: shopping-frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: shopping-frontend
@@ -482,16 +429,18 @@ spec:
     spec:
       containers:
       - name: shopping-frontend
-        image: shopping-frontend:v1
-        imagePullPolicy: Never
+        image: python:3.9-alpine
+        command: ["python", "-m", "http.server", "8080"]
+        workingDir: /app
         ports:
-        - containerPort: 80
-        env:
-        - name: API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: frontend-config
-              key: API_URL
+        - containerPort: 8080
+        volumeMounts:
+        - name: frontend-html
+          mountPath: /app
+      volumes:
+      - name: frontend-html
+        configMap:
+          name: frontend-html
 ```
 8. Aplica el Deployment:
 
@@ -532,19 +481,26 @@ kubectl apply -f frontend-deployment.yaml
    Cuando trabajamos con imágenes construidas localmente en Minikube, establecer `imagePullPolicy: Never` asegura que Kubernetes use la imagen local en lugar de intentar descargarla de un registro remoto. Esto es crucial para el desarrollo local y pruebas con Minikube.
    </details>
 
-3. ¿Qué papel juega el archivo `nginx.conf` en la configuración del frontend?
+3. ¿Qué función cumple el comando `python -m http.server 8080` en la configuración del frontend?
 
-   A) Define la estructura de la base de datos
-   B) Configura el balanceo de carga entre múltiples instancias del frontend
-   C) Establece reglas de enrutamiento, incluyendo el proxy para las llamadas a la API
-   D) Optimiza el rendimiento de la aplicación React
+   A) Inicia una base de datos para el almacenamiento local
+   B) Compila el código JavaScript del frontend
+   C) Inicia un servidor web simple para servir el contenido estático
+   D) Establece una conexión segura con el backend
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es C) Establece reglas de enrutamiento, incluyendo el proxy para las llamadas a la API.
+   La respuesta correcta es C) Inicia un servidor web simple para servir el contenido estático.
 
-   El archivo `nginx.conf` configura el servidor web Nginx que sirve la aplicación frontend. En este caso, se utiliza para definir cómo se deben manejar las diferentes rutas, incluyendo el redireccionamiento de las llamadas a la API al servicio backend correspondiente.
+   El comando `python -m http.server 8080` inicia un servidor HTTP simple utilizando el módulo `http.server` de Python. Este servidor es capaz de servir archivos estáticos, como nuestro `index.html`, directamente desde el directorio en el que se ejecuta. Es una solución ligera y rápida para servir contenido web estático, ideal para desarrollo y aplicaciones simples.
+
+   Características clave:
+   - No requiere configuración adicional.
+   - Sirve todos los archivos en el directorio actual.
+   - Escucha en el puerto 8080 (como se especifica en el comando).
+   - Es suficiente para servir HTML, CSS y JavaScript estáticos.
+   - No proporciona características avanzadas como balanceo de carga o manejo complejo de rutas.
    </details>
 
 ## Parte 4: Exposición de Servicios
