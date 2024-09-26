@@ -111,12 +111,12 @@ kubectl apply -f backend-deployment.yaml
 </details>
 
 #### Preguntas
-1. ¿Qué sucedería si no especificamos un `selector` en el Deployment?
+¿Qué sucedería si no especificamos un `selector` en el Deployment?
 
-   1. Kubernetes asignaría automáticamente un selector basado en el nombre del Deployment
-   2. El Deployment no podría crearse y Kubernetes arrojaría un error
-   3. Todos los pods en el namespace serían gestionados por este Deployment
-   4. El Deployment se crearía pero no gestionaría ningún pod
+1. Kubernetes asignaría automáticamente un selector basado en el nombre del Deployment
+2. El Deployment no podría crearse y Kubernetes arrojaría un error
+3. Todos los pods en el namespace serían gestionados por este Deployment
+4. El Deployment se crearía pero no gestionaría ningún pod
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -126,12 +126,12 @@ kubectl apply -f backend-deployment.yaml
    El `selector` es un campo obligatorio en la especificación del Deployment. Define cómo el Deployment identifica los pods que debe gestionar. Sin un selector, Kubernetes no sabría qué pods están asociados con el Deployment, por lo que no permitiría su creación.
    </details>
 
-2. Si aumentamos el número de `replicas` en el Deployment de 2 a 5, ¿qué acción tomará Kubernetes?
+Si aumentamos el número de `replicas` en el Deployment de 2 a 5, ¿qué acción tomará Kubernetes?
 
-   1. Eliminará los pods existentes y creará 5 nuevos
-   2. Creará 3 pods adicionales, manteniendo los 2 existentes
-   3. Ignorará el cambio hasta que se reinicie el cluster
-   4. Mostrará un error indicando que no se puede cambiar el número de réplicas
+1. Eliminará los pods existentes y creará 5 nuevos
+2. Creará 3 pods adicionales, manteniendo los 2 existentes
+3. Ignorará el cambio hasta que se reinicie el cluster
+4. Mostrará un error indicando que no se puede cambiar el número de réplicas
 
    <details>
    <summary>Ver respuesta correcta</summary>
