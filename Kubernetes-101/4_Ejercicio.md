@@ -438,7 +438,7 @@ Aplica el Deployment:
 kubectl apply -f frontend-deployment.yaml
 ```
 
-### Pregunta Final:
+### Pregunta:
 ¿Cuál es la ventaja principal de usar un ConfigMap para la URL del API en lugar de codificarla directamente en el Deployment?
 
 A) Los ConfigMaps son más seguros que las variables de entorno en el Deployment
@@ -456,20 +456,19 @@ Los ConfigMaps permiten separar la configuración del código de la aplicación,
 
 ## Parte 4: Exposición de Servicios
 
-### Pregunta Inicial:
-¿Qué tipo de Service deberías usar para exponer el frontend de tu aplicación en Minikube?
+¿Qué recurso de Kubernetes deberías usar para exponer tu aplicación fuera del cluster?
 
-A) ClusterIP
-B) NodePort
-C) LoadBalancer
-D) Ingress
+A) Pod
+B) Deployment
+C) Service
+D) ConfigMap
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es D) Ingress.
+La respuesta correcta es C) Service.
 
-Aunque NodePort también podría funcionar, Ingress es la mejor opción para exponer servicios HTTP en Minikube, ya que proporciona más flexibilidad y características como enrutamiento basado en path y terminación TLS.
+Los Services en Kubernetes son utilizados para exponer aplicaciones dentro del cluster y, dependiendo del tipo de Service, también fuera del cluster. Proporcionan una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos.
 </details>
 
 ### Tarea:
