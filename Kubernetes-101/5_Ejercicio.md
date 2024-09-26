@@ -498,7 +498,7 @@ spec:
 ```bash
 kubectl apply -f frontend-deployment.yaml
 ```
-<details>
+</details>
 
 #### Preguntas:
 
