@@ -25,15 +25,15 @@ Eres un desarrollador en una startup de comercio electrónico. Tu tarea es const
 
 ¿Qué recurso de Kubernetes es más adecuado para desplegar el backend API de la aplicación?
 
-A) Pod
-B) Deployment
-C) StatefulSet
-D) DaemonSet
+1. Pod
+2. Deployment
+3. StatefulSet
+4. DaemonSet
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es B) Deployment.
+La respuesta correcta es 2. Deployment.
 
 Un Deployment es ideal para aplicaciones sin estado como un backend API. Proporciona capacidades de escalado, actualizaciones rolling y rollbacks, que son cruciales para mantener la disponibilidad y facilitar las actualizaciones de la aplicación.
 </details>
@@ -113,45 +113,45 @@ kubectl apply -f backend-deployment.yaml
 #### Preguntas
 1. ¿Qué sucedería si no especificamos un `selector` en el Deployment?
 
-   A) Kubernetes asignaría automáticamente un selector basado en el nombre del Deployment
-   B) El Deployment no podría crearse y Kubernetes arrojaría un error
-   C) Todos los pods en el namespace serían gestionados por este Deployment
-   D) El Deployment se crearía pero no gestionaría ningún pod
+   1. Kubernetes asignaría automáticamente un selector basado en el nombre del Deployment
+   2. El Deployment no podría crearse y Kubernetes arrojaría un error
+   3. Todos los pods en el namespace serían gestionados por este Deployment
+   4. El Deployment se crearía pero no gestionaría ningún pod
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) El Deployment no podría crearse y Kubernetes arrojaría un error.
+   La respuesta correcta es 2. El Deployment no podría crearse y Kubernetes arrojaría un error.
 
    El `selector` es un campo obligatorio en la especificación del Deployment. Define cómo el Deployment identifica los pods que debe gestionar. Sin un selector, Kubernetes no sabría qué pods están asociados con el Deployment, por lo que no permitiría su creación.
    </details>
 
 2. Si aumentamos el número de `replicas` en el Deployment de 2 a 5, ¿qué acción tomará Kubernetes?
 
-   A) Eliminará los pods existentes y creará 5 nuevos
-   B) Creará 3 pods adicionales, manteniendo los 2 existentes
-   C) Ignorará el cambio hasta que se reinicie el cluster
-   D) Mostrará un error indicando que no se puede cambiar el número de réplicas
+   1. Eliminará los pods existentes y creará 5 nuevos
+   2. Creará 3 pods adicionales, manteniendo los 2 existentes
+   3. Ignorará el cambio hasta que se reinicie el cluster
+   4. Mostrará un error indicando que no se puede cambiar el número de réplicas
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) Creará 3 pods adicionales, manteniendo los 2 existentes.
+   La respuesta correcta es 2. Creará 3 pods adicionales, manteniendo los 2 existentes.
 
    Kubernetes siempre intenta alcanzar y mantener el estado deseado especificado en el Deployment. Al aumentar el número de réplicas, Kubernetes creará pods adicionales para alcanzar el nuevo número deseado, sin afectar a los pods existentes que ya están en funcionamiento.
    </details>
 
 3. En el contexto de un Deployment de Kubernetes, ¿qué significa tener múltiples réplicas?
 
-   A) Crear copias de seguridad de la aplicación
-   B) Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad
-   C) Duplicar el código fuente de la aplicación
-   D) Crear múltiples versiones diferentes de la aplicación
+   1. Crear copias de seguridad de la aplicación
+   2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad
+   3. Duplicar el código fuente de la aplicación
+   4. Crear múltiples versiones diferentes de la aplicación
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad.
+   La respuesta correcta es 2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad.
 
    Al especificar múltiples réplicas en un Deployment, Kubernetes crea y mantiene varias instancias idénticas de tu aplicación. Esto proporciona alta disponibilidad (si una instancia falla, las otras siguen funcionando) y permite la escalabilidad horizontal (puedes aumentar o disminuir el número de réplicas según la demanda).
    </details>
@@ -161,15 +161,15 @@ kubectl apply -f backend-deployment.yaml
 
 Para una base de datos que requiere almacenamiento persistente y nombres de host estables, ¿qué recurso de Kubernetes deberías usar?
 
-A) Deployment
-B) ReplicaSet
-C) StatefulSet
-D) Job
+1. Deployment
+2. ReplicaSet
+3. StatefulSet
+4. Job
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es C) StatefulSet.
+La respuesta correcta es 3. StatefulSet.
 
 Los StatefulSets son ideales para aplicaciones que requieren identidades de red estables, ordenamiento predecible de pods y almacenamiento persistente, características cruciales para la mayoría de las bases de datos.
 </details>
@@ -294,45 +294,45 @@ kubectl apply -f postgres-statefulset.yaml
 
 1. ¿Cuál es la principal diferencia entre un Deployment y un StatefulSet?
 
-   A) Los StatefulSets solo se usan para bases de datos
-   B) Los Deployments no pueden tener volúmenes persistentes
-   C) Los StatefulSets mantienen una identidad de red estable para cada pod
-   D) Los Deployments son más rápidos de escalar que los StatefulSets
+   1. Los StatefulSets solo se usan para bases de datos
+   2. Los Deployments no pueden tener volúmenes persistentes
+   3. Los StatefulSets mantienen una identidad de red estable para cada pod
+   4. Los Deployments son más rápidos de escalar que los StatefulSets
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es C) Los StatefulSets mantienen una identidad de red estable para cada pod.
+   La respuesta correcta es 3. Los StatefulSets mantienen una identidad de red estable para cada pod.
 
    Los StatefulSets se utilizan para aplicaciones que requieren identificadores de red estables, ordenamiento predecible de pods y almacenamiento persistente. Esto los hace ideales para bases de datos y otras aplicaciones con estado, aunque no se limitan solo a bases de datos.
    </details>
 
 2. ¿Por qué es importante usar un Secret para almacenar la contraseña de la base de datos en lugar de incluirla directamente en el StatefulSet?
 
-   A) Los Secrets son más fáciles de actualizar que los StatefulSets
-   B) Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles
-   C) Kubernetes requiere el uso de Secrets para todas las contraseñas
-   D) Los Secrets permiten compartir la misma contraseña entre múltiples pods
+   1. Los Secrets son más fáciles de actualizar que los StatefulSets
+   2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles
+   3. Kubernetes requiere el uso de Secrets para todas las contraseñas
+   4. Los Secrets permiten compartir la misma contraseña entre múltiples pods
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles.
+   La respuesta correcta es 2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles.
 
    Los Secrets están diseñados para almacenar y gestionar información sensible, como contraseñas. Proporcionan un nivel adicional de seguridad al encriptar los datos en reposo y limitar el acceso a esta información sensible. Esto es crucial para mantener la seguridad de las credenciales de la base de datos.
    </details>
 
 3. En el contexto de un StatefulSet para una base de datos, ¿qué proporciona el `volumeClaimTemplate`?
 
-   A) Una forma de compartir datos entre todos los pods del StatefulSet
-   B) Un mecanismo para hacer copias de seguridad automáticas de la base de datos
-   C) Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet
-   D) Un método para limitar el espacio de almacenamiento usado por la base de datos
+   1. Una forma de compartir datos entre todos los pods del StatefulSet
+   2. Un mecanismo para hacer copias de seguridad automáticas de la base de datos
+   3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet
+   4. Un método para limitar el espacio de almacenamiento usado por la base de datos
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es C) Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet.
+   La respuesta correcta es 3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet.
 
    El `volumeClaimTemplate` en un StatefulSet define cómo se deben crear los Persistent Volume Claims (PVCs) para cada réplica del StatefulSet. Esto asegura que cada instancia de la base de datos tenga su propio almacenamiento persistente, manteniendo así la integridad y la persistencia de los datos incluso si los pods se reinician o se mueven a diferentes nodos.
    </details>
@@ -342,15 +342,15 @@ kubectl apply -f postgres-statefulset.yaml
 ### Pregunta:
 ¿Qué recurso de Kubernetes es más apropiado para manejar la configuración externa de una aplicación, como URLs de API?
 
-A) Secret
-B) ConfigMap
-C) PersistentVolume
-D) ServiceAccount
+1. Secret
+2. ConfigMap
+3. PersistentVolume
+4. ServiceAccount
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es B) ConfigMap.
+La respuesta correcta es 2. ConfigMap.
 
 Los ConfigMaps son ideales para almacenar datos de configuración no confidenciales en formato clave-valor. Son perfectos para manejar configuraciones como URLs de API, que pueden necesitar cambios sin requerir una reconstrucción de la imagen del contenedor.
 </details>
@@ -441,15 +441,15 @@ kubectl apply -f frontend-deployment.yaml
 ### Pregunta:
 ¿Cuál es la ventaja principal de usar un ConfigMap para la URL del API en lugar de codificarla directamente en el Deployment?
 
-A) Los ConfigMaps son más seguros que las variables de entorno en el Deployment
-B) Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación
-C) Los ConfigMaps mejoran el rendimiento de la aplicación
-D) Kubernetes requiere el uso de ConfigMaps para variables de entorno
+1. Los ConfigMaps son más seguros que las variables de entorno en el Deployment
+2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación
+3. Los ConfigMaps mejoran el rendimiento de la aplicación
+4. Kubernetes requiere el uso de ConfigMaps para variables de entorno
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es B) Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación.
+La respuesta correcta es 2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación.
 
 Los ConfigMaps permiten separar la configuración del código de la aplicación, lo que facilita la modificación de parámetros como URLs sin necesidad de cambiar la imagen del contenedor o redesplegar la aplicación completa. Esto proporciona mayor flexibilidad y facilita la gestión de diferentes entornos.
 </details>
@@ -458,15 +458,15 @@ Los ConfigMaps permiten separar la configuración del código de la aplicación,
 
 ¿Qué recurso de Kubernetes deberías usar para exponer tu aplicación fuera del cluster?
 
-A) Pod
-B) Deployment
-C) Service
-D) ConfigMap
+1. Pod
+2. Deployment
+3. Service
+4. ConfigMap
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es C) Service.
+La respuesta correcta es 3. Service.
 
 Los Services en Kubernetes son utilizados para exponer aplicaciones dentro del cluster y, dependiendo del tipo de Service, también fuera del cluster. Proporcionan una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos.
 </details>
@@ -549,45 +549,45 @@ kubectl apply -f ingress.yaml
 
 1. ¿Por qué usamos un Service de tipo ClusterIP para el backend y NodePort para el frontend?
 
-   A) ClusterIP es más rápido que NodePort
-   B) NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno
-   C) ClusterIP usa menos recursos que NodePort
-   D) NodePort es el único tipo de Service que funciona con aplicaciones web
+   1. ClusterIP es más rápido que NodePort
+   2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno
+   3. ClusterIP usa menos recursos que NodePort
+   4. NodePort es el único tipo de Service que funciona con aplicaciones web
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno.
+   La respuesta correcta es 2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno.
 
    ClusterIP expone el Service en una IP interna del cluster, lo cual es suficiente para el backend que solo necesita ser accesible por otros componentes dentro del cluster. NodePort, por otro lado, expone el Service en cada IP de nodo en un puerto estático, permitiendo el acceso desde fuera del cluster, lo cual es necesario para el frontend.
    </details>
 
 2. ¿Qué ventaja proporciona usar Services en lugar de acceder directamente a los Pods?
 
-   A) Los Services son más rápidos que los Pods
-   B) Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga
-   C) Los Services usan menos recursos del sistema
-   D) Los Services son el único modo de comunicación entre Pods en Kubernetes
+   1. Los Services son más rápidos que los Pods
+   2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga
+   3. Los Services usan menos recursos del sistema
+   4. Los Services son el único modo de comunicación entre Pods en Kubernetes
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es B) Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga.
+   La respuesta correcta es 2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga.
 
    Los Services proporcionan una abstracción estable para un conjunto de Pods, permitiendo el descubrimiento de servicios y el balanceo de carga. Esto es crucial para mantener la estabilidad y la escalabilidad de las aplicaciones en Kubernetes, ya que los Pods pueden ser creados, destruidos o movidos dinámicamente.
    </details>
 
 3. En el contexto de Minikube, ¿cómo podrías acceder al frontend Service desde tu máquina local?
 
-   A) Usando la IP del cluster directamente
-   B) A través de un Ingress
-   C) Usando el comando `minikube service shopping-frontend-service`
-   D) Los Services en Minikube no son accesibles desde fuera del cluster
+   1. Usando la IP del cluster directamente
+   2. A través de un Ingress
+   3. Usando el comando `minikube service shopping-frontend-service`
+   4. Los Services en Minikube no son accesibles desde fuera del cluster
 
    <details>
    <summary>Ver respuesta correcta</summary>
 
-   La respuesta correcta es C) Usando el comando `minikube service shopping-frontend-service`.
+   La respuesta correcta es 3. Usando el comando `minikube service shopping-frontend-service`.
 
    Minikube proporciona el comando `minikube service` que permite acceder fácilmente a los Services de tipo NodePort o LoadBalancer desde fuera del cluster. Este comando configura automáticamente el reenvío de puertos necesario y proporciona una URL accesible desde tu máquina local.
    </details>
