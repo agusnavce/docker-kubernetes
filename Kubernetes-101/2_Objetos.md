@@ -770,9 +770,7 @@ kubectl describe service web-nodeport
 
 Para el Service ClusterIP:
 ```bash
-kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
-/ # apk add --no-cache curl
-/ # curl web-clusterip
+kubectl run test-pod --rm -i --tty --image=alpine -- sh -c 'apk add --no-cache curl && curl web-clusterip'
 ```
 
 Para el Service NodePort (asumiendo que estás usando minikube):
