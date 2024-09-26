@@ -383,7 +383,8 @@ spec:
 2. Considera cómo exponer el puerto del servidor web del frontend.
 3. Piensa en cómo incluir la URL del API desde el ConfigMap.
 
-### Solución:
+<details>
+    <summary>Solución</summary>
 
 1. Crea un Dockerfile para el frontend en un directorio llamado `frontend`:
 
@@ -492,12 +493,12 @@ spec:
               name: frontend-config
               key: API_URL
 ```
-
 8. Aplica el Deployment:
 
 ```bash
 kubectl apply -f frontend-deployment.yaml
 ```
+<details>
 
 #### Preguntas:
 
@@ -567,7 +568,8 @@ En un entorno de Minikube, NodePort es la opción más sencilla para exponer ser
 ### Tarea:
 Crea Services para el backend y frontend, exponiendo el frontend mediante un NodePort Service.
 
-### Solución:
+<details>
+    <summary>Solución</summary>### Solución:
 
 1. Crea un Service para el backend:
 
@@ -616,6 +618,9 @@ minikube service shopping-frontend-service
 ```
 
 Este comando abrirá automáticamente el servicio en tu navegador predeterminado.
+
+</details>
+
 
 #### Preguntas:
 
