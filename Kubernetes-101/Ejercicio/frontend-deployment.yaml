@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: shopping-frontend
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: shopping-frontend
@@ -14,3 +14,10 @@ spec:
     spec:
       containers:
       - name: shopping-frontend
+        image: python:3.9-alpine
+        command: ["python", "-m", "http.server", "8080"]
+        workingDir: /app
+      volumes:
+      - name: frontend-html
+        configMap:
+          name: frontend-html

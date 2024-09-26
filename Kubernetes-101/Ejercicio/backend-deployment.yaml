@@ -13,5 +13,3 @@ spec:
         app: shopping-api
     spec:
       containers:
-      - name: shopping-api
-        # Completa las especificaciones aquí

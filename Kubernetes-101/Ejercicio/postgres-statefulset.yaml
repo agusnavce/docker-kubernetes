@@ -1,18 +1,19 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: shopping-api-postgres
+  name: postgres
 spec:
   serviceName: "postgres"
   replicas: 1
   selector:
     matchLabels:
-      app: shopping-api
+      app: postgres
   template:
     metadata:
       labels:
-        app: shopping-api
+        app: postgres
     spec:
       containers:
       - name: postgres
         image: postgres:13
+        
