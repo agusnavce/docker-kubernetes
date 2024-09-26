@@ -30,9 +30,6 @@ Los Pods son la unidad más básica y fundamental en Kubernetes. Representan un 
 2. **Ambassador**: Contenedor que representa al contenedor principal para acceder a recursos externos.
 3. **Adapter**: Contenedor que estandariza y normaliza la salida del contenedor principal.
 
-## Pods
-
-![alt text](Imagenes/Pods.png "Pods")
 
 ### Estructura YAML de un Pod
 
@@ -163,14 +160,6 @@ spec:
         cpu: "500m"
 ```
 
-### Mejores Prácticas para Definir Pods
-
-1. **Uso de etiquetas**: Utiliza etiquetas significativas para organizar y seleccionar Pods.
-2. **Límites de recursos**: Siempre especifica límites de recursos para evitar que un Pod consuma demasiados recursos del nodo.
-3. **Seguridad**: Utiliza securityContext para configurar ajustes de seguridad.
-4. **Afinidad y anti-afinidad**: Usa reglas de afinidad para controlar la ubicación de los Pods.
-5. **Init containers**: Utiliza init containers para tareas de inicialización antes de que se inicien los contenedores principales.
-
 ### Ejercicio Práctico: Creación y Manipulación de Pods
 
 #### Objetivo
@@ -272,554 +261,6 @@ En este ejercicio, crearemos un Pod, examinaremos su estado y estructura, y real
 6. **Seguridad**: Aplica políticas de seguridad a nivel de Pod, como PodSecurityPolicies, para controlar los privilegios y capacidades de los Pods.
 
 7. **Efimeral por diseño**: Diseña tus aplicaciones asumiendo que los Pods son efímeros y pueden ser reemplazados en cualquier momento.
-
-
-## Services
-
-Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible en la red, ya sea dentro del cluster o externamente.
-
-#### Características clave:
-
-- **Descubrimiento de servicios**: Proporcionan un nombre DNS estable para un conjunto de Pods.
-- **Balanceo de carga**: Distribuyen el tráfico entre los Pods asociados.
-- **Abstracción de red**: Ocultan la complejidad de la red subyacente y los cambios en los Pods.
-- **Exposición de aplicaciones**: Permiten exponer aplicaciones fuera del cluster.
-
-#### Tipos de Services:
-1. **ClusterIP**: Expone el Service en una IP interna del cluster. Es el tipo por defecto.
-2. **NodePort**: Expone el Service en el mismo puerto de cada nodo seleccionado en el cluster.
-3. **LoadBalancer**: Expone el Service externamente usando el balanceador de carga del proveedor de nube.
-4. **ExternalName**: Mapea el Service a un nombre DNS externo.
-
-#### Anatomía de un Service:
-1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
-2. **Spec**: 
-   - `selector`: Define qué Pods son parte del Service.
-   - `ports`: Especifica los puertos que el Service expone.
-   - `type`: Determina cómo se expone el Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
-3. **Status**: Contiene la IP asignada al Service y otra información de estado.
-
-
-### Estructura YAML de un Service
-
-Un archivo YAML para definir un Service típicamente tiene la siguiente estructura:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: mi-servicio
-spec:
-  selector:
-    app: mi-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
-  type: ClusterIP
-```
-
-### Explicación de los campos principales:
-
-1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para Services, es "v1".
-
-2. **kind**: Indica el tipo de objeto, en este caso "Service".
-
-3. **metadata**: Contiene información para identificar únicamente al Service.
-   - **name**: El nombre del Service.
-
-4. **spec**: Define la configuración deseada del Service.
-   - **selector**: Define qué Pods serán expuestos por este Service.
-   - **ports**: Especifica los puertos que el Service expondrá.
-   - **type**: Define el tipo de Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
-
-### Campos adicionales opcionales:
-
-- **externalIPs**: Lista de IPs externas a las que debe enrutar el Service.
-- **sessionAffinity**: Define si las solicitudes del mismo cliente se redirigen al mismo Pod.
-- **clusterIP**: IP asignada al Service dentro del cluster.
-
-### Ejemplos de Casos de Uso Comunes
-
-1. **Service de tipo ClusterIP para comunicación interna**:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend
-spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-  type: ClusterIP
-```
-
-2. **Service de tipo NodePort para exposición externa**:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend
-spec:
-  selector:
-    app: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5000
-      nodePort: 30007
-  type: NodePort
-```
-
-3. **Service de tipo LoadBalancer para exposición en la nube**:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-service
-spec:
-  selector:
-    app: my-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
-  type: LoadBalancer
-```
-
-4. **Service de tipo ExternalName para mapeo a un nombre DNS externo**:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-service
-  namespace: prod
-spec:
-  type: ExternalName
-  externalName: my.database.example.com
-```
-
-### Ejercicio Práctico: Creación y Manipulación de Services
-
-#### Objetivo
-En este ejercicio, crearemos diferentes tipos de Services para una aplicación web simple y exploraremos cómo interactúan con los Pods.
-
-#### Pasos
-
-1. **Crear un Deployment para nuestra aplicación**
-
-Crea un archivo llamado `web-deployment.yaml`:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: web-app
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: web
-  template:
-    metadata:
-      labels:
-        app: web
-    spec:
-      containers:
-      - name: web
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-```
-
-Aplica el Deployment:
-
-```bash
-kubectl apply -f web-deployment.yaml
-```
-
-2. **Crear un Service de tipo ClusterIP**
-
-Crea un archivo llamado `clusterip-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-clusterip
-spec:
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f clusterip-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-clusterip
-```
-
-3. **Crear un Service de tipo NodePort**
-
-Crea un archivo llamado `nodeport-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-nodeport
-spec:
-  type: NodePort
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f nodeport-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-nodeport
-```
-
-4. **Crear un Service de tipo LoadBalancer**
-
-Nota: Este tipo de Service requiere un proveedor de nube que soporte balanceadores de carga externos.
-
-Crea un archivo llamado `loadbalancer-service.yaml`:
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: web-loadbalancer
-spec:
-  type: LoadBalancer
-  selector:
-    app: web
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
-
-Aplica el Service:
-
-```bash
-kubectl apply -f loadbalancer-service.yaml
-```
-
-Verifica la creación del Service:
-
-```bash
-kubectl get services
-kubectl describe service web-loadbalancer
-```
-
-5. **Probar los Services**
-
-Para el Service ClusterIP:
-```bash
-kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
-/ # apk add --no-cache curl
-/ # curl web-clusterip
-```
-
-Para el Service NodePort (asumiendo que estás usando minikube):
-```bash
-minikube service web-nodeport --url
-```
-
-Luego, abre la URL proporcionada en tu navegador.
-
-Para el Service LoadBalancer (si estás en un proveedor de nube):
-```bash
-kubectl get services web-loadbalancer
-```
-Usa la IP externa proporcionada para acceder al servicio.
-
-6. **Limpiar**
-
-Elimina todos los recursos creados:
-
-```bash
-kubectl delete -f web-deployment.yaml
-kubectl delete -f clusterip-service.yaml
-kubectl delete -f nodeport-service.yaml
-kubectl delete -f loadbalancer-service.yaml
-```
-
-### Mejores Prácticas para Services
-
-1. **Uso de selectores**: Utiliza selectores de etiquetas precisos para asociar los Services con los Pods correctos.
-
-2. **Nombrado consistente**: Usa un esquema de nombrado consistente para tus Services para facilitar la gestión.
-
-3. **Exposición mínima**: Utiliza ClusterIP para servicios internos y expón externamente solo cuando sea necesario.
-
-4. **Uso de anotaciones**: Aprovecha las anotaciones para configuraciones específicas del proveedor de nube.
-
-5. **Monitoreo**: Implementa monitoreo para tus Services para detectar problemas de conectividad o balanceo de carga.
-
-6. **Seguridad**: Utiliza NetworkPolicies junto con Services para controlar el tráfico de red.
-
-7. **Pruebas de conectividad**: Realiza pruebas regulares para asegurar que los Services están funcionando correctamente.
-
-8. **Documentación**: Documenta el propósito y las dependencias de cada Service en tu aplicación.
-
-## ReplicaSets
-
-![alt text](Imagenes/Replica.png "ReplicaSet")
-
-Un ReplicaSet es un objeto de Kubernetes que asegura que un número específico de réplicas de un Pod esté ejecutándose en todo momento. Proporciona capacidades de auto-reparación y escalado horizontal para los Pods.
-
-#### Características clave:
-- **Mantenimiento de réplicas**: Garantiza que el número deseado de Pods esté siempre en ejecución.
-- **Selector de etiquetas**: Utiliza selectores para identificar los Pods que gestiona.
-- **Plantilla de Pod**: Define la especificación de los Pods que creará.
-- **Escalabilidad**: Permite aumentar o disminuir fácilmente el número de réplicas.
-- **Auto-reparación**: Si un Pod falla o es eliminado, el ReplicaSet creará uno nuevo para mantener el número deseado.
-
-#### Anatomía de un ReplicaSet:
-1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
-2. **Spec**: 
-   - `replicas`: Número deseado de Pods.
-   - `selector`: Define cómo el ReplicaSet identifica los Pods a gestionar.
-   - `template`: Plantilla para crear nuevos Pods.
-3. **Status**: Contiene información sobre el estado actual del ReplicaSet, incluyendo el número de réplicas actuales.
-
-#### Funcionamiento de un ReplicaSet:
-1. El ReplicaSet monitorea constantemente el estado de los Pods que coinciden con su selector.
-2. Si el número de Pods es menor que el número deseado, crea nuevos Pods basados en la plantilla.
-3. Si el número de Pods es mayor que el deseado, elimina los Pods excedentes.
-4. Si un Pod falla o es eliminado, el ReplicaSet crea uno nuevo para reemplazarlo.
-
-#### Casos de uso:
-- Mantener un conjunto estable de Pods replicados ejecutándose en todo momento.
-- Garantizar la disponibilidad de un número específico de Pods idénticos.
-- Escalar horizontalmente una aplicación aumentando el número de réplicas.
-
-### Estructura YAML de un ReplicaSet
-
-Un archivo YAML para definir un ReplicaSet típicamente tiene la siguiente estructura:
-
-```yaml
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: mi-replicaset
-  labels:
-    app: mi-aplicacion
-    tier: backend
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: mi-aplicacion
-  template:
-    metadata:
-      labels:
-        app: mi-aplicacion
-    spec:
-      containers:
-      - name: mi-contenedor
-        image: nginx:1.14.2
-        ports:
-        - containerPort: 80
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "256Mi"
-          requests:
-            cpu: "0.2"
-            memory: "128Mi"
-```
-
-### Explicación de los campos principales:
-
-1. **apiVersion**: Especifica la versión de la API de Kubernetes que se está utilizando. Para ReplicaSets, es "apps/v1".
-
-2. **kind**: Indica el tipo de objeto que se está definiendo, en este caso "ReplicaSet".
-
-3. **metadata**: Contiene información que ayuda a identificar únicamente al ReplicaSet.
-   - **name**: El nombre del ReplicaSet.
-   - **labels**: Etiquetas clave-valor para organizar y seleccionar ReplicaSets.
-
-4. **spec**: Define la configuración deseada del ReplicaSet.
-   - **replicas**: Número deseado de réplicas de Pods.
-   - **selector**: Define cómo el ReplicaSet identifica qué Pods gestionar.
-     - **matchLabels**: Etiquetas que deben coincidir con las de los Pods.
-   - **template**: Plantilla para los Pods que el ReplicaSet creará.
-     - **metadata**: Metadatos para los Pods creados.
-     - **spec**: Especificación de los Pods, incluyendo los contenedores.
-
-### Campos adicionales opcionales:
-
-- **minReadySeconds**: Tiempo mínimo que un Pod nuevo debe estar listo sin ningún contenedor fallando para considerarse disponible.
-- **progressDeadlineSeconds**: Tiempo máximo para que el ReplicaSet progrese antes de que se considere fallido.
-
-### Ejemplo de Casos de Uso Comunes
-
-1. **ReplicaSet con múltiples réplicas**:
-
-```yaml
-apiVersion: apps/v1
-kind: ReplicaSet
-metadata:
-  name: frontend
-spec:
-  replicas: 5
-  selector:
-    matchLabels:
-      tier: frontend
-  template:
-    metadata:
-      labels:
-        tier: frontend
-    spec:
-      containers:
-      - name: php-redis
-        image: gcr.io/google_samples/gb-frontend:v3
-```
-
-### Ejercicio Práctico: Creación y Manipulación de ReplicaSets
-
-#### Objetivo
-En este ejercicio, crearemos un ReplicaSet, examinaremos su comportamiento y realizaremos operaciones de escalado.
-
-#### Pasos
-
-1. **Crear un ReplicaSet**
-
-   Crea un archivo llamado `mi-replicaset.yaml` con el siguiente contenido:
-
-   ```yaml
-   apiVersion: apps/v1
-   kind: ReplicaSet
-   metadata:
-     name: mi-replicaset
-   spec:
-     replicas: 3
-     selector:
-       matchLabels:
-         app: mi-app
-     template:
-       metadata:
-         labels:
-           app: mi-app
-       spec:
-         containers:
-         - name: nginx
-           image: nginx:1.14.2
-           ports:
-           - containerPort: 80
-   ```
-
-   Aplica el archivo para crear el ReplicaSet:
-
-   ```bash
-   kubectl apply -f mi-replicaset.yaml
-   ```
-
-2. **Examinar el ReplicaSet**
-
-   Verifica que el ReplicaSet está en ejecución:
-
-   ```bash
-   kubectl get replicasets
-   ```
-
-   Obtén más detalles sobre el ReplicaSet:
-
-   ```bash
-   kubectl describe replicaset mi-replicaset
-   ```
-
-3. **Verificar los Pods creados**
-
-   Lista los Pods creados por el ReplicaSet:
-
-   ```bash
-   kubectl get pods -l app=mi-app
-   ```
-
-4. **Escalar el ReplicaSet**
-
-   Escala el ReplicaSet a 5 réplicas:
-
-   ```bash
-   kubectl scale replicaset mi-replicaset --replicas=5
-   ```
-
-   Verifica que ahora hay 5 Pods:
-
-   ```bash
-   kubectl get pods -l app=mi-app
-   ```
-
-5. **Probar la auto-reparación**
-
-   Elimina uno de los Pods:
-
-   ```bash
-   kubectl delete pod <nombre-de-un-pod>
-   ```
-
-   Observa cómo el ReplicaSet crea automáticamente un nuevo Pod:
-
-   ```bash
-   kubectl get pods -l app=mi-app
-   ```
-
-6. **Eliminar el ReplicaSet**
-
-   Cuando hayas terminado, elimina el ReplicaSet:
-
-   ```bash
-   kubectl delete replicaset mi-replicaset
-   ```
-
-### Mejores Prácticas para ReplicaSets
-
-1. **Uso de Deployments**: En la mayoría de los casos, es mejor usar Deployments que gestionan ReplicaSets, ya que ofrecen capacidades adicionales como actualizaciones rolling y rollbacks.
-
-2. **Etiquetas precisas**: Asegúrate de que los selectores de etiquetas sean precisos para evitar conflictos con otros controladores.
-
-3. **No modificar directamente**: Evita modificar los Pods creados por un ReplicaSet directamente, ya que el ReplicaSet los reemplazará para mantener el estado deseado.
-
-4. **Recursos adecuados**: Configura los recursos (CPU, memoria) adecuadamente en la plantilla de Pod para garantizar que los Pods tengan los recursos necesarios.
-
-5. **Monitoreo**: Implementa un sistema de monitoreo para seguir el estado y rendimiento de tus ReplicaSets y los Pods que gestionan.
-
-6. **Actualización de imágenes**: Para actualizar la imagen de los contenedores, es mejor actualizar el Deployment que gestiona el ReplicaSet, en lugar de modificar el ReplicaSet directamente.
-
-7. **Uso de Probes**: Incluye liveness y readiness probes en la plantilla de Pod para mejorar la confiabilidad y la capacidad de auto-reparación.
 
 ## Deployments
 
@@ -1107,6 +548,496 @@ En este ejercicio, crearemos un Deployment, realizaremos una actualización, esc
 7. **Monitoreo y logs**: Implementa un sistema robusto de monitoreo y logging para seguir el rendimiento y el estado de tus Deployments.
 
 8. **Uso de ConfigMaps y Secrets**: Externaliza la configuración y los secretos usando ConfigMaps y Secrets en lugar de codificarlos en la especificación del Deployment.
+
+## Services
+
+Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible en la red, ya sea dentro del cluster o externamente.
+
+#### Características clave:
+
+- **Descubrimiento de servicios**: Proporcionan un nombre DNS estable para un conjunto de Pods.
+- **Balanceo de carga**: Distribuyen el tráfico entre los Pods asociados.
+- **Abstracción de red**: Ocultan la complejidad de la red subyacente y los cambios en los Pods.
+- **Exposición de aplicaciones**: Permiten exponer aplicaciones fuera del cluster.
+
+#### Tipos de Services:
+1. **ClusterIP**: Expone el Service en una IP interna del cluster. Es el tipo por defecto.
+2. **NodePort**: Expone el Service en el mismo puerto de cada nodo seleccionado en el cluster.
+3. **LoadBalancer**: Expone el Service externamente usando el balanceador de carga del proveedor de nube.
+4. **ExternalName**: Mapea el Service a un nombre DNS externo.
+
+#### Anatomía de un Service:
+1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
+2. **Spec**: 
+   - `selector`: Define qué Pods son parte del Service.
+   - `ports`: Especifica los puertos que el Service expone.
+   - `type`: Determina cómo se expone el Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
+3. **Status**: Contiene la IP asignada al Service y otra información de estado.
+
+
+### Estructura YAML de un Service
+
+Un archivo YAML para definir un Service típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mi-servicio
+spec:
+  selector:
+    app: mi-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9376
+  type: ClusterIP
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes. Para Services, es "v1".
+
+2. **kind**: Indica el tipo de objeto, en este caso "Service".
+
+3. **metadata**: Contiene información para identificar únicamente al Service.
+   - **name**: El nombre del Service.
+
+4. **spec**: Define la configuración deseada del Service.
+   - **selector**: Define qué Pods serán expuestos por este Service.
+   - **ports**: Especifica los puertos que el Service expondrá.
+   - **type**: Define el tipo de Service (ClusterIP, NodePort, LoadBalancer, ExternalName).
+
+### Campos adicionales opcionales:
+
+- **externalIPs**: Lista de IPs externas a las que debe enrutar el Service.
+- **sessionAffinity**: Define si las solicitudes del mismo cliente se redirigen al mismo Pod.
+- **clusterIP**: IP asignada al Service dentro del cluster.
+
+### Ejemplos de Casos de Uso Comunes
+
+1. **Service de tipo ClusterIP para comunicación interna**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+```
+
+2. **Service de tipo NodePort para exposición externa**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+      nodePort: 30007
+  type: NodePort
+```
+
+1. **Service de tipo ExternalName para mapeo a un nombre DNS externo**:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: prod
+spec:
+  type: ExternalName
+  externalName: my.database.example.com
+```
+
+### Ejercicio Práctico: Creación y Manipulación de Services
+
+#### Objetivo
+En este ejercicio, crearemos diferentes tipos de Services para una aplicación web simple y exploraremos cómo interactúan con los Pods.
+
+#### Pasos
+
+1. **Crear un Deployment para nuestra aplicación**
+
+Crea un archivo llamado `web-deployment.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+```
+
+Aplica el Deployment:
+
+```bash
+kubectl apply -f web-deployment.yaml
+```
+
+2. **Crear un Service de tipo ClusterIP**
+
+Crea un archivo llamado `clusterip-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-clusterip
+spec:
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f clusterip-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-clusterip
+```
+
+3. **Crear un Service de tipo NodePort**
+
+Crea un archivo llamado `nodeport-service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+```
+
+Aplica el Service:
+
+```bash
+kubectl apply -f nodeport-service.yaml
+```
+
+Verifica la creación del Service:
+
+```bash
+kubectl get services
+kubectl describe service web-nodeport
+```
+
+1. **Probar los Services**
+
+Para el Service ClusterIP:
+```bash
+kubectl run -it --rm --restart=Never alpine --image=alpine -- sh
+/ # apk add --no-cache curl
+/ # curl web-clusterip
+```
+
+Para el Service NodePort (asumiendo que estás usando minikube):
+```bash
+minikube service web-nodeport --url
+```
+
+Luego, abre la URL proporcionada en tu navegador.
+
+1. **Limpiar**
+
+Elimina todos los recursos creados:
+
+```bash
+kubectl delete -f web-deployment.yaml
+kubectl delete -f clusterip-service.yaml
+kubectl delete -f nodeport-service.yaml
+```
+
+### Mejores Prácticas para Services
+
+1. **Uso de selectores**: Utiliza selectores de etiquetas precisos para asociar los Services con los Pods correctos.
+
+2. **Nombrado consistente**: Usa un esquema de nombrado consistente para tus Services para facilitar la gestión.
+
+3. **Exposición mínima**: Utiliza ClusterIP para servicios internos y expón externamente solo cuando sea necesario.
+
+4. **Uso de anotaciones**: Aprovecha las anotaciones para configuraciones específicas del proveedor de nube.
+
+5. **Monitoreo**: Implementa monitoreo para tus Services para detectar problemas de conectividad o balanceo de carga.
+
+6. **Seguridad**: Utiliza NetworkPolicies junto con Services para controlar el tráfico de red.
+
+7. **Pruebas de conectividad**: Realiza pruebas regulares para asegurar que los Services están funcionando correctamente.
+
+8. **Documentación**: Documenta el propósito y las dependencias de cada Service en tu aplicación.
+
+## ReplicaSets
+
+![alt text](Imagenes/Replica.png "ReplicaSet")
+
+Un ReplicaSet es un objeto de Kubernetes que asegura que un número específico de réplicas de un Pod esté ejecutándose en todo momento. Proporciona capacidades de auto-reparación y escalado horizontal para los Pods.
+
+#### Características clave:
+
+- **Mantenimiento de réplicas**: Garantiza que el número deseado de Pods esté siempre en ejecución.
+- **Selector de etiquetas**: Utiliza selectores para identificar los Pods que gestiona.
+- **Plantilla de Pod**: Define la especificación de los Pods que creará.
+- **Escalabilidad**: Permite aumentar o disminuir fácilmente el número de réplicas.
+- **Auto-reparación**: Si un Pod falla o es eliminado, el ReplicaSet creará uno nuevo para mantener el número deseado.
+
+#### Anatomía de un ReplicaSet:
+1. **Metadata**: Incluye nombre, namespace, etiquetas y anotaciones.
+2. **Spec**: 
+   - `replicas`: Número deseado de Pods.
+   - `selector`: Define cómo el ReplicaSet identifica los Pods a gestionar.
+   - `template`: Plantilla para crear nuevos Pods.
+3. **Status**: Contiene información sobre el estado actual del ReplicaSet, incluyendo el número de réplicas actuales.
+
+#### Funcionamiento de un ReplicaSet:
+1. El ReplicaSet monitorea constantemente el estado de los Pods que coinciden con su selector.
+2. Si el número de Pods es menor que el número deseado, crea nuevos Pods basados en la plantilla.
+3. Si el número de Pods es mayor que el deseado, elimina los Pods excedentes.
+4. Si un Pod falla o es eliminado, el ReplicaSet crea uno nuevo para reemplazarlo.
+
+#### Casos de uso:
+- Mantener un conjunto estable de Pods replicados ejecutándose en todo momento.
+- Garantizar la disponibilidad de un número específico de Pods idénticos.
+- Escalar horizontalmente una aplicación aumentando el número de réplicas.
+
+### Estructura YAML de un ReplicaSet
+
+Un archivo YAML para definir un ReplicaSet típicamente tiene la siguiente estructura:
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: mi-replicaset
+  labels:
+    app: mi-aplicacion
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mi-aplicacion
+  template:
+    metadata:
+      labels:
+        app: mi-aplicacion
+    spec:
+      containers:
+      - name: mi-contenedor
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "256Mi"
+          requests:
+            cpu: "0.2"
+            memory: "128Mi"
+```
+
+### Explicación de los campos principales:
+
+1. **apiVersion**: Especifica la versión de la API de Kubernetes que se está utilizando. Para ReplicaSets, es "apps/v1".
+
+2. **kind**: Indica el tipo de objeto que se está definiendo, en este caso "ReplicaSet".
+
+3. **metadata**: Contiene información que ayuda a identificar únicamente al ReplicaSet.
+   - **name**: El nombre del ReplicaSet.
+   - **labels**: Etiquetas clave-valor para organizar y seleccionar ReplicaSets.
+
+4. **spec**: Define la configuración deseada del ReplicaSet.
+   - **replicas**: Número deseado de réplicas de Pods.
+   - **selector**: Define cómo el ReplicaSet identifica qué Pods gestionar.
+     - **matchLabels**: Etiquetas que deben coincidir con las de los Pods.
+   - **template**: Plantilla para los Pods que el ReplicaSet creará.
+     - **metadata**: Metadatos para los Pods creados.
+     - **spec**: Especificación de los Pods, incluyendo los contenedores.
+
+### Campos adicionales opcionales:
+
+- **minReadySeconds**: Tiempo mínimo que un Pod nuevo debe estar listo sin ningún contenedor fallando para considerarse disponible.
+- **progressDeadlineSeconds**: Tiempo máximo para que el ReplicaSet progrese antes de que se considere fallido.
+
+### Ejemplo de Casos de Uso Comunes
+
+1. **ReplicaSet con múltiples réplicas**:
+
+```yaml
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: frontend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google_samples/gb-frontend:v3
+```
+
+### Ejercicio Práctico: Creación y Manipulación de ReplicaSets
+
+#### Objetivo
+En este ejercicio, crearemos un ReplicaSet, examinaremos su comportamiento y realizaremos operaciones de escalado.
+
+#### Pasos
+
+1. **Crear un ReplicaSet**
+
+   Crea un archivo llamado `mi-replicaset.yaml` con el siguiente contenido:
+
+   ```yaml
+   apiVersion: apps/v1
+   kind: ReplicaSet
+   metadata:
+     name: mi-replicaset
+   spec:
+     replicas: 3
+     selector:
+       matchLabels:
+         app: mi-app
+     template:
+       metadata:
+         labels:
+           app: mi-app
+       spec:
+         containers:
+         - name: nginx
+           image: nginx:1.14.2
+           ports:
+           - containerPort: 80
+   ```
+
+   Aplica el archivo para crear el ReplicaSet:
+
+   ```bash
+   kubectl apply -f mi-replicaset.yaml
+   ```
+
+2. **Examinar el ReplicaSet**
+
+   Verifica que el ReplicaSet está en ejecución:
+
+   ```bash
+   kubectl get replicasets
+   ```
+
+   Obtén más detalles sobre el ReplicaSet:
+
+   ```bash
+   kubectl describe replicaset mi-replicaset
+   ```
+
+3. **Verificar los Pods creados**
+
+   Lista los Pods creados por el ReplicaSet:
+
+   ```bash
+   kubectl get pods -l app=mi-app
+   ```
+
+4. **Escalar el ReplicaSet**
+
+   Escala el ReplicaSet a 5 réplicas:
+
+   ```bash
+   kubectl scale replicaset mi-replicaset --replicas=5
+   ```
+
+   Verifica que ahora hay 5 Pods:
+
+   ```bash
+   kubectl get pods -l app=mi-app
+   ```
+
+5. **Probar la auto-reparación**
+
+   Elimina uno de los Pods:
+
+   ```bash
+   kubectl delete pod <nombre-de-un-pod>
+   ```
+
+   Observa cómo el ReplicaSet crea automáticamente un nuevo Pod:
+
+   ```bash
+   kubectl get pods -l app=mi-app
+   ```
+
+6. **Eliminar el ReplicaSet**
+
+   Cuando hayas terminado, elimina el ReplicaSet:
+
+   ```bash
+   kubectl delete replicaset mi-replicaset
+   ```
+
+### Mejores Prácticas para ReplicaSets
+
+1. **Uso de Deployments**: En la mayoría de los casos, es mejor usar Deployments que gestionan ReplicaSets, ya que ofrecen capacidades adicionales como actualizaciones rolling y rollbacks.
+
+2. **Etiquetas precisas**: Asegúrate de que los selectores de etiquetas sean precisos para evitar conflictos con otros controladores.
+
+3. **No modificar directamente**: Evita modificar los Pods creados por un ReplicaSet directamente, ya que el ReplicaSet los reemplazará para mantener el estado deseado.
+
+4. **Recursos adecuados**: Configura los recursos (CPU, memoria) adecuadamente en la plantilla de Pod para garantizar que los Pods tengan los recursos necesarios.
+
+5. **Monitoreo**: Implementa un sistema de monitoreo para seguir el estado y rendimiento de tus ReplicaSets y los Pods que gestionan.
+
+6. **Actualización de imágenes**: Para actualizar la imagen de los contenedores, es mejor actualizar el Deployment que gestiona el ReplicaSet, en lugar de modificar el ReplicaSet directamente.
+
+7. **Uso de Probes**: Incluye liveness y readiness probes en la plantilla de Pod para mejorar la confiabilidad y la capacidad de auto-reparación.
 
 
 ## DaemonSets
