@@ -141,12 +141,12 @@ Si aumentamos el número de `replicas` en el Deployment de 2 a 5, ¿qué acción
    Kubernetes siempre intenta alcanzar y mantener el estado deseado especificado en el Deployment. Al aumentar el número de réplicas, Kubernetes creará pods adicionales para alcanzar el nuevo número deseado, sin afectar a los pods existentes que ya están en funcionamiento.
    </details>
 
-3. En el contexto de un Deployment de Kubernetes, ¿qué significa tener múltiples réplicas?
+En el contexto de un Deployment de Kubernetes, ¿qué significa tener múltiples réplicas?
 
-   1. Crear copias de seguridad de la aplicación
-   2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad
-   3. Duplicar el código fuente de la aplicación
-   4. Crear múltiples versiones diferentes de la aplicación
+1. Crear copias de seguridad de la aplicación
+2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad
+3. Duplicar el código fuente de la aplicación
+4. Crear múltiples versiones diferentes de la aplicación
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -292,12 +292,12 @@ kubectl apply -f postgres-statefulset.yaml
 
 #### Preguntas:
 
-1. ¿Cuál es la principal diferencia entre un Deployment y un StatefulSet?
+¿Cuál es la principal diferencia entre un Deployment y un StatefulSet?
 
-   1. Los StatefulSets solo se usan para bases de datos
-   2. Los Deployments no pueden tener volúmenes persistentes
-   3. Los StatefulSets mantienen una identidad de red estable para cada pod
-   4. Los Deployments son más rápidos de escalar que los StatefulSets
+1. Los StatefulSets solo se usan para bases de datos
+2. Los Deployments no pueden tener volúmenes persistentes
+3. Los StatefulSets mantienen una identidad de red estable para cada pod
+4. Los Deployments son más rápidos de escalar que los StatefulSets
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -307,12 +307,12 @@ kubectl apply -f postgres-statefulset.yaml
    Los StatefulSets se utilizan para aplicaciones que requieren identificadores de red estables, ordenamiento predecible de pods y almacenamiento persistente. Esto los hace ideales para bases de datos y otras aplicaciones con estado, aunque no se limitan solo a bases de datos.
    </details>
 
-2. ¿Por qué es importante usar un Secret para almacenar la contraseña de la base de datos en lugar de incluirla directamente en el StatefulSet?
+¿Por qué es importante usar un Secret para almacenar la contraseña de la base de datos en lugar de incluirla directamente en el StatefulSet?
 
-   1. Los Secrets son más fáciles de actualizar que los StatefulSets
-   2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles
-   3. Kubernetes requiere el uso de Secrets para todas las contraseñas
-   4. Los Secrets permiten compartir la misma contraseña entre múltiples pods
+1. Los Secrets son más fáciles de actualizar que los StatefulSets
+2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles
+3. Kubernetes requiere el uso de Secrets para todas las contraseñas
+4. Los Secrets permiten compartir la misma contraseña entre múltiples pods
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -322,12 +322,12 @@ kubectl apply -f postgres-statefulset.yaml
    Los Secrets están diseñados para almacenar y gestionar información sensible, como contraseñas. Proporcionan un nivel adicional de seguridad al encriptar los datos en reposo y limitar el acceso a esta información sensible. Esto es crucial para mantener la seguridad de las credenciales de la base de datos.
    </details>
 
-3. En el contexto de un StatefulSet para una base de datos, ¿qué proporciona el `volumeClaimTemplate`?
+En el contexto de un StatefulSet para una base de datos, ¿qué proporciona el `volumeClaimTemplate`?
 
-   1. Una forma de compartir datos entre todos los pods del StatefulSet
-   2. Un mecanismo para hacer copias de seguridad automáticas de la base de datos
-   3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet
-   4. Un método para limitar el espacio de almacenamiento usado por la base de datos
+1. Una forma de compartir datos entre todos los pods del StatefulSet
+2. Un mecanismo para hacer copias de seguridad automáticas de la base de datos
+3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet
+4. Un método para limitar el espacio de almacenamiento usado por la base de datos
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -547,12 +547,12 @@ kubectl apply -f ingress.yaml
 
 ### Preguntas Finales:
 
-1. ¿Por qué usamos un Service de tipo ClusterIP para el backend y NodePort para el frontend?
+¿Por qué usamos un Service de tipo ClusterIP para el backend y NodePort para el frontend?
 
-   1. ClusterIP es más rápido que NodePort
-   2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno
-   3. ClusterIP usa menos recursos que NodePort
-   4. NodePort es el único tipo de Service que funciona con aplicaciones web
+1. ClusterIP es más rápido que NodePort
+2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno
+3. ClusterIP usa menos recursos que NodePort
+4. NodePort es el único tipo de Service que funciona con aplicaciones web
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -562,12 +562,12 @@ kubectl apply -f ingress.yaml
    ClusterIP expone el Service en una IP interna del cluster, lo cual es suficiente para el backend que solo necesita ser accesible por otros componentes dentro del cluster. NodePort, por otro lado, expone el Service en cada IP de nodo en un puerto estático, permitiendo el acceso desde fuera del cluster, lo cual es necesario para el frontend.
    </details>
 
-2. ¿Qué ventaja proporciona usar Services en lugar de acceder directamente a los Pods?
+¿Qué ventaja proporciona usar Services en lugar de acceder directamente a los Pods?
 
-   1. Los Services son más rápidos que los Pods
-   2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga
-   3. Los Services usan menos recursos del sistema
-   4. Los Services son el único modo de comunicación entre Pods en Kubernetes
+1. Los Services son más rápidos que los Pods
+2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga
+3. Los Services usan menos recursos del sistema
+4. Los Services son el único modo de comunicación entre Pods en Kubernetes
 
    <details>
    <summary>Ver respuesta correcta</summary>
@@ -577,12 +577,12 @@ kubectl apply -f ingress.yaml
    Los Services proporcionan una abstracción estable para un conjunto de Pods, permitiendo el descubrimiento de servicios y el balanceo de carga. Esto es crucial para mantener la estabilidad y la escalabilidad de las aplicaciones en Kubernetes, ya que los Pods pueden ser creados, destruidos o movidos dinámicamente.
    </details>
 
-3. En el contexto de Minikube, ¿cómo podrías acceder al frontend Service desde tu máquina local?
+En el contexto de Minikube, ¿cómo podrías acceder al frontend Service desde tu máquina local?
 
-   1. Usando la IP del cluster directamente
-   2. A través de un Ingress
-   3. Usando el comando `minikube service shopping-frontend-service`
-   4. Los Services en Minikube no son accesibles desde fuera del cluster
+1. Usando la IP del cluster directamente
+2. A través de un Ingress
+3. Usando el comando `minikube service shopping-frontend-service`
+4. Los Services en Minikube no son accesibles desde fuera del cluster
 
    <details>
    <summary>Ver respuesta correcta</summary>
