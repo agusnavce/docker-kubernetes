@@ -1,593 +1,193 @@
-# Ejercicio de Construcción de Aplicación Completa en Kubernetes con Minikube
+# Ejercicio de Opción Múltiple: Despliegue de una Aplicación en Kubernetes
 
-## Escenario
+Este ejercicio evalúa tu conocimiento sobre el despliegue y operación de una aplicación en Kubernetes, abarcando varios aspectos como escalabilidad, actualizaciones, recuperación ante fallos, y almacenamiento persistente.
 
-Eres un desarrollador en una startup de comercio electrónico. Tu tarea es construir y desplegar una aplicación de carrito de compras en Kubernetes utilizando Minikube. La aplicación constará de un frontend, un backend API, una base de datos, y varios servicios auxiliares.
+---
 
-## Configuración Inicial
+## Paso 1: Configuración de Pods y Servicios
 
-1. Inicia Minikube:
-   ```
-   minikube start
-   ```
+**Pregunta 1:**
+Necesitas crear Pods para cada microservicio. Estos Pods deben ser accesibles entre ellos y para los usuarios externos. ¿Qué componente de Kubernetes utilizarías para hacer que los Pods sean accesibles y se descubran entre sí?
 
-2. Habilita el addon Ingress:
-   ```
-   minikube addons enable ingress
-   ```
-
-3. Configura Docker para usar el daemon Docker de Minikube:
-   ```
-   eval $(minikube docker-env)
-   ```
-
-## Parte 1: Componente del Backend API
-
-¿Qué recurso de Kubernetes es más adecuado para desplegar el backend API de la aplicación?
-
-1. Pod
-2. Deployment
-3. StatefulSet
-4. DaemonSet
+- A) **Solo ConfigMaps**
+- B) **Servicios (Services)**
+- C) **Ingress únicamente**
+- D) **Solo Volúmenes Persistentes**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+B) **Servicios (Services)**  
+**Explicación:** Los Services permiten que los Pods se descubran entre ellos y exponen los microservicios al exterior si es necesario, gestionando el tráfico y balanceo de carga entre ellos.
 
-La respuesta correcta es 2. Deployment.
-
-Un Deployment es ideal para aplicaciones sin estado como un backend API. Proporciona capacidades de escalado, actualizaciones rolling y rollbacks, que son cruciales para mantener la disponibilidad y facilitar las actualizaciones de la aplicación.
 </details>
 
-### Tarea:
-Completa el siguiente template de Deployment para el backend API. Asegúrate de usar la imagen que esta dentro de la carpeta Ejercicio.
+---
 
-### Pistas para completar el Deployment:
+## Paso 2: Asignación de recursos
 
-1. Recuerda especificar la imagen correcta y su política de extracción (pull policy).
-2. La aplicación está escuchando en el puerto 5000, asegúrate de exponer este puerto.
-3. Para trabajar con imágenes locales en Minikube, necesitas una configuración específica de la política de extracción.
+**Pregunta 2:**
+Para garantizar que cada microservicio funcione dentro de los límites adecuados de CPU y memoria, necesitas establecer restricciones en los recursos que pueden usar. ¿Qué componentes de Kubernetes te permiten definir límites de recursos para los Pods?
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: shopping-api
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: shopping-api
-  template:
-    metadata:
-      labels:
-        app: shopping-api
-    spec:
-      containers:
-      - name: shopping-api
-        # Completa las especificaciones aquí
-```
-
-### Solución:
+- A) **Resource Quotas y Limit Ranges**
+- B) **Horizontal Pod Autoscaler (HPA)**
+- C) **NodeSelector y Taints**
+- D) **Pod Disruption Budgets**
 
 <details>
-    <summary>Solución</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Resource Quotas y Limit Ranges**  
+**Explicación:** Las Resource Quotas y Limit Ranges permiten definir cuánta CPU y memoria puede consumir un Pod o un conjunto de Pods, garantizando que cada microservicio se mantenga dentro de los límites establecidos.
 
-1. Construye la imagen Docker:
-
-```bash
-docker build -t shopping-api:v1 .
-```
-
-5. Completa el Deployment YAML:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: shopping-api
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: shopping-api
-  template:
-    metadata:
-      labels:
-        app: shopping-api
-    spec:
-      containers:
-      - name: shopping-api
-        image: shopping-api:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 5000
-```
-
-Aplica el Deployment:
-
-```bash
-kubectl apply -f backend-deployment.yaml
-```
 </details>
 
-#### Preguntas
-¿Qué sucedería si no especificamos un `selector` en el Deployment?
+---
 
-1. Kubernetes asignaría automáticamente un selector basado en el nombre del Deployment
-2. El Deployment no podría crearse y Kubernetes arrojaría un error
-3. Todos los pods en el namespace serían gestionados por este Deployment
-4. El Deployment se crearía pero no gestionaría ningún pod
+## Paso 3: Escalabilidad
 
-   <details>
-   <summary>Ver respuesta correcta</summary>
+**Pregunta 3:**
+Deseas mantener un número fijo de réplicas de tus Pods en ejecución para garantizar la alta disponibilidad de tus microservicios. Si algún Pod falla, debe ser reemplazado automáticamente para que siempre haya una cantidad mínima de réplicas en ejecución. ¿Qué componente de Kubernetes utilizarías para lograr esto?
 
-   La respuesta correcta es 2. El Deployment no podría crearse y Kubernetes arrojaría un error.
-
-   El `selector` es un campo obligatorio en la especificación del Deployment. Define cómo el Deployment identifica los pods que debe gestionar. Sin un selector, Kubernetes no sabría qué pods están asociados con el Deployment, por lo que no permitiría su creación.
-   </details>
-
-Si aumentamos el número de `replicas` en el Deployment de 2 a 5, ¿qué acción tomará Kubernetes?
-
-1. Eliminará los pods existentes y creará 5 nuevos
-2. Creará 3 pods adicionales, manteniendo los 2 existentes
-3. Ignorará el cambio hasta que se reinicie el cluster
-4. Mostrará un error indicando que no se puede cambiar el número de réplicas
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 2. Creará 3 pods adicionales, manteniendo los 2 existentes.
-
-   Kubernetes siempre intenta alcanzar y mantener el estado deseado especificado en el Deployment. Al aumentar el número de réplicas, Kubernetes creará pods adicionales para alcanzar el nuevo número deseado, sin afectar a los pods existentes que ya están en funcionamiento.
-   </details>
-
-En el contexto de un Deployment de Kubernetes, ¿qué significa tener múltiples réplicas?
-
-1. Crear copias de seguridad de la aplicación
-2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad
-3. Duplicar el código fuente de la aplicación
-4. Crear múltiples versiones diferentes de la aplicación
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 2. Ejecutar múltiples instancias idénticas de la aplicación para alta disponibilidad y escalabilidad.
-
-   Al especificar múltiples réplicas en un Deployment, Kubernetes crea y mantiene varias instancias idénticas de tu aplicación. Esto proporciona alta disponibilidad (si una instancia falla, las otras siguen funcionando) y permite la escalabilidad horizontal (puedes aumentar o disminuir el número de réplicas según la demanda).
-   </details>
-
-
-## Parte 2: Componente de Base de Datos
-
-Para una base de datos que requiere almacenamiento persistente y nombres de host estables, ¿qué recurso de Kubernetes deberías usar?
-
-1. Deployment
-2. ReplicaSet
-3. StatefulSet
-4. Job
+- A) **DaemonSets**
+- B) **ReplicaSets**
+- C) **Horizontal Pod Autoscaler (HPA)**
+- D) **StatefulSets**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+B) **ReplicaSets**  
+**Explicación:** El **ReplicaSet** asegura que un número específico de Pods esté siempre en ejecución. Si un Pod falla, el ReplicaSet crea uno nuevo para mantener la cantidad deseada de réplicas.
 
-La respuesta correcta es 3. StatefulSet.
-
-Los StatefulSets son ideales para aplicaciones que requieren identidades de red estables, ordenamiento predecible de pods y almacenamiento persistente, características cruciales para la mayoría de las bases de datos.
 </details>
 
-### Tarea:
-Completa el siguiente template de StatefulSet para una base de datos PostgreSQL.
+---
 
-### Pistas para Completar el StatefulSet de PostgreSQL
+## Paso 4: Actualización de Pods
 
-1. **Puertos**:
-   - PostgreSQL usa un puerto específico por defecto. ¿Cuál es y cómo lo expondrías en el contenedor?
+**Pregunta 4:**
+Deseas implementar una nueva versión de los microservicios sin interrumpir el servicio. ¿Qué estrategia de despliegue deberías usar para implementar una nueva versión sin tiempo de inactividad?
 
-2. **Variables de Entorno**:
-   - PostgreSQL necesita una contraseña para el usuario root. ¿Cómo podrías proporcionar esta de manera segura?
-
-3. **Persistencia**:
-   - Los datos de PostgreSQL deben persistir incluso si el pod se reinicia. ¿Dónde almacena PostgreSQL sus datos por defecto?
-   - ¿Cómo podrías asegurarte de que este directorio se mantenga persistente?
-
-4. **Volumen**:
-   - El `volumeClaimTemplates` ya está definido en el YAML proporcionado. ¿Cómo lo conectarías con el contenedor de PostgreSQL?
-
-5. **Imagen**:
-   - La imagen de PostgreSQL ya está especificada. ¿Necesitas agregar algún tag específico o la versión por defecto es suficiente?
-
-6. **Seguridad**:
-   - ¿Hay alguna consideración de seguridad adicional que deberías tener en cuenta al ejecutar una base de datos en Kubernetes?
-
-```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: shopping-api-postgres
-spec:
-  serviceName: "postgres"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: shopping-api
-  template:
-    metadata:
-      labels:
-        app: shopping-api
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:13
-        # Completa las especificaciones aquí
-```
+- A) **Rolling Updates con Deployments**
+- B) **StatefulSets**
+- C) **Reiniciar manualmente los Pods**
+- D) **DaemonSets**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Rolling Updates con Deployments**  
+**Explicación:** Los Rolling Updates permiten que los Pods antiguos sean reemplazados por los nuevos de forma gradual, evitando el tiempo de inactividad.
 
-1. Crea un Secret para las credenciales de la base de datos:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-type: Opaque
-stringData:
-  POSTGRES_PASSWORD: mypassword
-```
-
-Aplica el Secret:
-
-```bash
-kubectl apply -f postgres-secret.yaml
-```
-
-2. Completa el StatefulSet YAML:
-
-```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-spec:
-  serviceName: "postgres"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:13
-        ports:
-        - containerPort: 5432
-        env:
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: POSTGRES_PASSWORD
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-storage
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      resources:
-        requests:
-          storage: 1Gi
-```
-
-Aplica el StatefulSet:
-
-```bash
-kubectl apply -f postgres-statefulset.yaml
-```
 </details>
 
-#### Preguntas:
+---
 
-¿Cuál es la principal diferencia entre un Deployment y un StatefulSet?
+## Paso 5: Recuperación ante fallos
 
-1. Los StatefulSets solo se usan para bases de datos
-2. Los Deployments no pueden tener volúmenes persistentes
-3. Los StatefulSets mantienen una identidad de red estable para cada pod
-4. Los Deployments son más rápidos de escalar que los StatefulSets
+**Pregunta 5:**
+Necesitas asegurarte de que los Pods fallidos se reinicien automáticamente sin afectar a otros componentes. ¿Qué mecanismo deberías implementar para garantizar la alta disponibilidad de los microservicios?
 
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 3. Los StatefulSets mantienen una identidad de red estable para cada pod.
-
-   Los StatefulSets se utilizan para aplicaciones que requieren identificadores de red estables, ordenamiento predecible de pods y almacenamiento persistente. Esto los hace ideales para bases de datos y otras aplicaciones con estado, aunque no se limitan solo a bases de datos.
-   </details>
-
-¿Por qué es importante usar un Secret para almacenar la contraseña de la base de datos en lugar de incluirla directamente en el StatefulSet?
-
-1. Los Secrets son más fáciles de actualizar que los StatefulSets
-2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles
-3. Kubernetes requiere el uso de Secrets para todas las contraseñas
-4. Los Secrets permiten compartir la misma contraseña entre múltiples pods
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 2. Los Secrets proporcionan encriptación y mejoran la seguridad de los datos sensibles.
-
-   Los Secrets están diseñados para almacenar y gestionar información sensible, como contraseñas. Proporcionan un nivel adicional de seguridad al encriptar los datos en reposo y limitar el acceso a esta información sensible. Esto es crucial para mantener la seguridad de las credenciales de la base de datos.
-   </details>
-
-En el contexto de un StatefulSet para una base de datos, ¿qué proporciona el `volumeClaimTemplate`?
-
-1. Una forma de compartir datos entre todos los pods del StatefulSet
-2. Un mecanismo para hacer copias de seguridad automáticas de la base de datos
-3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet
-4. Un método para limitar el espacio de almacenamiento usado por la base de datos
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 3. Una plantilla para crear volúmenes persistentes para cada réplica del StatefulSet.
-
-   El `volumeClaimTemplate` en un StatefulSet define cómo se deben crear los Persistent Volume Claims (PVCs) para cada réplica del StatefulSet. Esto asegura que cada instancia de la base de datos tenga su propio almacenamiento persistente, manteniendo así la integridad y la persistencia de los datos incluso si los pods se reinician o se mueven a diferentes nodos.
-   </details>
-
-## Parte 3: Componente del Frontend
-
-### Pregunta:
-¿Qué recurso de Kubernetes es más apropiado para manejar la configuración externa de una aplicación, como URLs de API?
-
-1. Secret
-2. ConfigMap
-3. PersistentVolume
-4. ServiceAccount
+- A) **Liveness Probes y Readiness Probes**
+- B) **StatefulSets con Volúmenes Persistentes**
+- C) **ConfigMaps**
+- D) **DaemonSets con HPA**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Liveness Probes y Readiness Probes**  
+**Explicación:** Las Liveness Probes permiten que Kubernetes reinicie los Pods fallidos automáticamente, mientras que las Readiness Probes aseguran que los Pods estén listos para manejar tráfico antes de exponerlos.
 
-La respuesta correcta es 2. ConfigMap.
-
-Los ConfigMaps son ideales para almacenar datos de configuración no confidenciales en formato clave-valor. Son perfectos para manejar configuraciones como URLs de API, que pueden necesitar cambios sin requerir una reconstrucción de la imagen del contenedor.
 </details>
 
-### Tarea:
-Completa el siguiente template de Deployment para el frontend. Usa un ConfigMap para la URL del API.
+---
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: shopping-frontend
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: shopping-api
-  template:
-    metadata:
-      labels:
-        app: shopping-api
-    spec:
-      containers:
-      - name: shopping-frontend
-        # Completa las especificaciones aquí
-```
+## Paso 6: Persistencia de Datos
 
-1. Construye la imagen Docker:
+**Pregunta 6:**
+Uno de los microservicios que estás desplegando necesita almacenar datos de manera persistente, incluso si los Pods fallan o se reinician. ¿Qué mecanismo deberías implementar en Kubernetes para garantizar la persistencia de los datos?
 
-```bash
-docker build -t shopping-frontend:v1 frontend
-```
-
-4. Crea un ConfigMap para la URL del API:
-
-```yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: frontend-config
-data:
-  API_URL: "http://shopping-api-service:5000"
-```
-
-Aplica el ConfigMap:
-
-```bash
-kubectl apply -f frontend-config.yaml
-```
-
-5. Completa el Deployment YAML:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: shopping-api
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: shopping-api
-  template:
-    metadata:
-      labels:
-        app: shopping-api
-    spec:
-      containers:
-      - name: shopping-frontend
-        image: shopping-frontend:v1
-        imagePullPolicy: Never
-        ports:
-        - containerPort: 80
-        env:
-        - name: API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: frontend-config
-              key: API_URL
-```
-
-Aplica el Deployment:
-
-```bash
-kubectl apply -f frontend-deployment.yaml
-```
-
-### Pregunta:
-¿Cuál es la ventaja principal de usar un ConfigMap para la URL del API en lugar de codificarla directamente en el Deployment?
-
-1. Los ConfigMaps son más seguros que las variables de entorno en el Deployment
-2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación
-3. Los ConfigMaps mejoran el rendimiento de la aplicación
-4. Kubernetes requiere el uso de ConfigMaps para variables de entorno
+- A) **Volúmenes Persistentes (Persistent Volumes) y PersistentVolumeClaims (PVC)**
+- B) **ConfigMaps**
+- C) **Liveness Probes**
+- D) **ReplicaSets**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Volúmenes Persistentes (Persistent Volumes) y PersistentVolumeClaims (PVC)**  
+**Explicación:** Los Volúmenes Persistentes y PersistentVolumeClaims permiten que los datos de la aplicación persistan incluso si los Pods fallan o se reinician, asegurando que los datos no se pierdan.
 
-La respuesta correcta es 2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación.
-
-Los ConfigMaps permiten separar la configuración del código de la aplicación, lo que facilita la modificación de parámetros como URLs sin necesidad de cambiar la imagen del contenedor o redesplegar la aplicación completa. Esto proporciona mayor flexibilidad y facilita la gestión de diferentes entornos.
 </details>
 
-## Parte 4: Exposición de Servicios
+---
 
-¿Qué recurso de Kubernetes deberías usar para exponer tu aplicación fuera del cluster?
+## Paso 7: Gestión de Configuración
 
-1. Pod
-2. Deployment
-3. Service
-4. ConfigMap
+**Pregunta 7:**
+Quieres que los microservicios utilicen un archivo de configuración que puedas cambiar sin reconstruir la imagen del contenedor. ¿Qué recurso de Kubernetes deberías usar para inyectar esta configuración en los Pods?
+
+- A) **ConfigMaps**
+- B) **Secrets**
+- C) **Persistent Volumes**
+- D) **ReplicaSets**
 
 <details>
-<summary>Ver respuesta correcta</summary>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **ConfigMaps**  
+**Explicación:** Los ConfigMaps permiten inyectar datos de configuración en los Pods sin necesidad de reconstruir la imagen del contenedor, facilitando la gestión de configuraciones dinámicas.
 
-La respuesta correcta es 3. Service.
-
-Los Services en Kubernetes son utilizados para exponer aplicaciones dentro del cluster y, dependiendo del tipo de Service, también fuera del cluster. Proporcionan una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos.
 </details>
 
-### Tarea:
-Crea Services para el backend y frontend, y un Ingress para exponer el frontend.
+---
 
-### Solución:
+## Paso 8: Seguridad
 
-1. Crea un Service para el backend:
+**Pregunta 8:**
+Para manejar información sensible, como contraseñas o claves API, en un entorno seguro dentro de Kubernetes, ¿qué recurso deberías usar?
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: shopping-api-service
-spec:
-  selector:
-    app: shopping-api
-  ports:
-    - protocol: TCP
-      port: 5000
-      targetPort: 5000
-```
+- A) **Secrets**
+- B) **ConfigMaps**
+- C) **Resource Quotas**
+- D) **Ingress**
 
-2. Crea un Service para el frontend:
+<details>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Secrets**  
+**Explicación:** Los Secrets permiten almacenar y gestionar información sensible, como contraseñas y claves API, de forma segura en Kubernetes.
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: shopping-frontend-service
-spec:
-  selector:
-    app: shopping-frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-```
+</details>
 
-3. Crea un Ingress:
+---
 
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: shopping-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: shopping-frontend-service
-            port: 
-              number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: shopping-api-service
-            port: 
-              number: 5000
-```
+## Paso 9: Balanceo de carga externo
 
-Aplica estos recursos:
+**Pregunta 9:**
+Tu aplicación necesita estar disponible para usuarios externos y recibir tráfico HTTP. ¿Qué recurso de Kubernetes te permite gestionar el tráfico externo y balancearlo hacia los Pods correctos?
 
-```bash
-kubectl apply -f backend-service.yaml
-kubectl apply -f frontend-service.yaml
-kubectl apply -f ingress.yaml
-```
+- A) **Ingress**
+- B) **DaemonSets**
+- C) **StatefulSets**
+- D) **Pod Disruption Budgets**
 
-### Preguntas Finales:
+<details>
+<summary><strong>Ver solución</strong></summary>
+  
+**Respuesta correcta:**  
+A) **Ingress**  
+**Explicación:** Ingress permite gestionar el tráfico HTTP externo y redirigirlo a los Servicios internos correspondientes, ofreciendo balanceo de carga y enrutamiento.
 
-¿Por qué usamos un Service de tipo ClusterIP para el backend y NodePort para el frontend?
+</details>
 
-1. ClusterIP es más rápido que NodePort
-2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno
-3. ClusterIP usa menos recursos que NodePort
-4. NodePort es el único tipo de Service que funciona con aplicaciones web
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 2. NodePort permite el acceso desde fuera del cluster, mientras que ClusterIP es solo para acceso interno.
-
-   ClusterIP expone el Service en una IP interna del cluster, lo cual es suficiente para el backend que solo necesita ser accesible por otros componentes dentro del cluster. NodePort, por otro lado, expone el Service en cada IP de nodo en un puerto estático, permitiendo el acceso desde fuera del cluster, lo cual es necesario para el frontend.
-   </details>
-
-¿Qué ventaja proporciona usar Services en lugar de acceder directamente a los Pods?
-
-1. Los Services son más rápidos que los Pods
-2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga
-3. Los Services usan menos recursos del sistema
-4. Los Services son el único modo de comunicación entre Pods en Kubernetes
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 2. Los Services proporcionan una abstracción que permite el descubrimiento y balanceo de carga.
-
-   Los Services proporcionan una abstracción estable para un conjunto de Pods, permitiendo el descubrimiento de servicios y el balanceo de carga. Esto es crucial para mantener la estabilidad y la escalabilidad de las aplicaciones en Kubernetes, ya que los Pods pueden ser creados, destruidos o movidos dinámicamente.
-   </details>
-
-En el contexto de Minikube, ¿cómo podrías acceder al frontend Service desde tu máquina local?
-
-1. Usando la IP del cluster directamente
-2. A través de un Ingress
-3. Usando el comando `minikube service shopping-frontend-service`
-4. Los Services en Minikube no son accesibles desde fuera del cluster
-
-   <details>
-   <summary>Ver respuesta correcta</summary>
-
-   La respuesta correcta es 3. Usando el comando `minikube service shopping-frontend-service`.
-
-   Minikube proporciona el comando `minikube service` que permite acceder fácilmente a los Services de tipo NodePort o LoadBalancer desde fuera del cluster. Este comando configura automáticamente el reenvío de puertos necesario y proporciona una URL accesible desde tu máquina local.
-   </details>
