@@ -1220,41 +1220,43 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
 
    ```yaml
    apiVersion: apps/v1
-   kind: DaemonSet
-   metadata:
-     name: fluentd-elasticsearch
-     namespace: kube-system
-     labels:
-       k8s-app: fluentd-logging
-   spec:
-     selector:
-       matchLabels:
-         name: fluentd-elasticsearch
-     template:
-       metadata:
-         labels:
-           name: fluentd-elasticsearch
-       spec:
-         tolerations:
-         - key: node-role.kubernetes.io/master
-           effect: NoSchedule
-         containers:
-         - name: fluentd-elasticsearch
-           image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
-           resources:
-             limits:
-               memory: 200Mi
-             requests:
-               cpu: 100m
-               memory: 200Mi
-           volumeMounts:
-           - name: varlog
-             mountPath: /var/log
-         terminationGracePeriodSeconds: 30
-         volumes:
-         - name: varlog
-           hostPath:
-             path: /var/log
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
+        name: fluentd-elasticsearch
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: fluent/fluentd-kubernetes-daemonset:v1.14.6-debian-elasticsearch7-1.1
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: varlog
+          mountPath: /var/log
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
    ```
 
    Aplica el archivo para crear el DaemonSet:
