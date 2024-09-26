@@ -339,7 +339,7 @@ En el contexto de un StatefulSet para una base de datos, ¿qué proporciona el `
 
 ## Parte 3: Componente del Frontend
 
-### Pregunta:
+### Pregunta Inicial:
 ¿Qué recurso de Kubernetes es más apropiado para manejar la configuración externa de una aplicación, como URLs de API?
 
 1. Secret
@@ -367,24 +367,85 @@ spec:
   replicas: 2
   selector:
     matchLabels:
-      app: shopping-api
+      app: shopping-frontend
   template:
     metadata:
       labels:
-        app: shopping-api
+        app: shopping-frontend
     spec:
       containers:
       - name: shopping-frontend
         # Completa las especificaciones aquí
 ```
 
-1. Construye la imagen Docker:
+### Pistas:
+1. Recuerda usar la imagen correcta para el frontend.
+2. Considera cómo exponer el puerto del servidor web del frontend.
+3. Piensa en cómo incluir la URL del API desde el ConfigMap.
+
+### Solución:
+
+1. Crea un Dockerfile para el frontend en un directorio llamado `frontend`:
+
+```Dockerfile
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+```
+
+2. Crea un archivo `index.html`:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping App</title>
+</head>
+<body>
+    <h1>Welcome to our Shopping App!</h1>
+    <div id="products"></div>
+    <script>
+        fetch('/api/products')
+            .then(response => response.json())
+            .then(products => {
+                const productList = document.getElementById('products');
+                products.forEach(product => {
+                    const item = document.createElement('p');
+                    item.textContent = `${product.name}: $${product.price}`;
+                    productList.appendChild(item);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
+```
+
+3. Crea un archivo `nginx.conf`:
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+    location /api {
+        proxy_pass http://shopping-api-service:5000;
+    }
+}
+```
+
+4. Construye la imagen Docker:
 
 ```bash
 docker build -t shopping-frontend:v1 frontend
 ```
 
-4. Crea un ConfigMap para la URL del API:
+5. Crea un ConfigMap para la URL del API:
 
 ```yaml
 apiVersion: v1
@@ -395,28 +456,28 @@ data:
   API_URL: "http://shopping-api-service:5000"
 ```
 
-Aplica el ConfigMap:
+6. Aplica el ConfigMap:
 
 ```bash
 kubectl apply -f frontend-config.yaml
 ```
 
-5. Completa el Deployment YAML:
+7. Completa el Deployment YAML:
 
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shopping-api
+  name: shopping-frontend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: shopping-api
+      app: shopping-frontend
   template:
     metadata:
       labels:
-        app: shopping-api
+        app: shopping-frontend
     spec:
       containers:
       - name: shopping-frontend
@@ -432,47 +493,79 @@ spec:
               key: API_URL
 ```
 
-Aplica el Deployment:
+8. Aplica el Deployment:
 
 ```bash
 kubectl apply -f frontend-deployment.yaml
 ```
 
-### Pregunta:
-¿Cuál es la ventaja principal de usar un ConfigMap para la URL del API en lugar de codificarla directamente en el Deployment?
+#### Preguntas:
 
-1. Los ConfigMaps son más seguros que las variables de entorno en el Deployment
-2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación
-3. Los ConfigMaps mejoran el rendimiento de la aplicación
-4. Kubernetes requiere el uso de ConfigMaps para variables de entorno
+1. ¿Cuál es la ventaja principal de usar un ConfigMap para la URL del API en lugar de codificarla directamente en el Deployment?
 
-<details>
-<summary>Ver respuesta correcta</summary>
+   A) Los ConfigMaps son más seguros que las variables de entorno en el Deployment
+   B) Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación
+   C) Los ConfigMaps mejoran el rendimiento de la aplicación
+   D) Kubernetes requiere el uso de ConfigMaps para variables de entorno
 
-La respuesta correcta es 2. Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación.
+   <details>
+   <summary>Ver respuesta correcta</summary>
 
-Los ConfigMaps permiten separar la configuración del código de la aplicación, lo que facilita la modificación de parámetros como URLs sin necesidad de cambiar la imagen del contenedor o redesplegar la aplicación completa. Esto proporciona mayor flexibilidad y facilita la gestión de diferentes entornos.
-</details>
+   La respuesta correcta es B) Permite cambiar la configuración sin necesidad de reconstruir o redesplegar la aplicación.
+
+   Los ConfigMaps permiten separar la configuración del código de la aplicación, lo que facilita la modificación de parámetros como URLs sin necesidad de cambiar la imagen del contenedor o redesplegar la aplicación completa. Esto proporciona mayor flexibilidad y facilita la gestión de diferentes entornos.
+   </details>
+
+2. En el contexto del frontend Deployment, ¿por qué es importante establecer `imagePullPolicy: Never`?
+
+   A) Para mejorar el rendimiento del Deployment
+   B) Para asegurar que siempre se use la última versión de la imagen
+   C) Para usar la imagen construida localmente en Minikube en lugar de intentar descargarla
+   D) Es un requisito de Kubernetes para todos los Deployments en Minikube
+
+   <details>
+   <summary>Ver respuesta correcta</summary>
+
+   La respuesta correcta es C) Para usar la imagen construida localmente en Minikube en lugar de intentar descargarla.
+
+   Cuando trabajamos con imágenes construidas localmente en Minikube, establecer `imagePullPolicy: Never` asegura que Kubernetes use la imagen local en lugar de intentar descargarla de un registro remoto. Esto es crucial para el desarrollo local y pruebas con Minikube.
+   </details>
+
+3. ¿Qué papel juega el archivo `nginx.conf` en la configuración del frontend?
+
+   A) Define la estructura de la base de datos
+   B) Configura el balanceo de carga entre múltiples instancias del frontend
+   C) Establece reglas de enrutamiento, incluyendo el proxy para las llamadas a la API
+   D) Optimiza el rendimiento de la aplicación React
+
+   <details>
+   <summary>Ver respuesta correcta</summary>
+
+   La respuesta correcta es C) Establece reglas de enrutamiento, incluyendo el proxy para las llamadas a la API.
+
+   El archivo `nginx.conf` configura el servidor web Nginx que sirve la aplicación frontend. En este caso, se utiliza para definir cómo se deben manejar las diferentes rutas, incluyendo el redireccionamiento de las llamadas a la API al servicio backend correspondiente.
+   </details>
 
 ## Parte 4: Exposición de Servicios
 
-¿Qué recurso de Kubernetes deberías usar para exponer tu aplicación fuera del cluster?
+### Pregunta Inicial:
+¿Qué recurso de Kubernetes deberías usar para exponer tu aplicación fuera del cluster en un entorno de Minikube?
 
-1. Pod
-2. Deployment
-3. Service
-4. ConfigMap
+1. Ingress
+2. LoadBalancer Service
+3. NodePort Service
+4. ExternalName Service
 
 <details>
 <summary>Ver respuesta correcta</summary>
 
-La respuesta correcta es 3. Service.
+La respuesta correcta es 3. NodePort Service.
 
-Los Services en Kubernetes son utilizados para exponer aplicaciones dentro del cluster y, dependiendo del tipo de Service, también fuera del cluster. Proporcionan una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos.
+En un entorno de Minikube, NodePort es la opción más sencilla para exponer servicios externamente. Ingress requiere configuración adicional, LoadBalancer no está disponible por defecto en Minikube, y ExternalName se usa para diferentes propósitos.
 </details>
 
 ### Tarea:
-Crea Services para el backend y frontend, y un Ingress para exponer el frontend.
+Crea Services para el backend y frontend, exponiendo el frontend mediante un NodePort Service.
 
 ### Solución:
 
@@ -492,7 +585,7 @@ spec:
       targetPort: 5000
 ```
 
-2. Crea un Service para el frontend:
+2. Crea un NodePort Service para el frontend:
 
 ```yaml
 apiVersion: v1
@@ -500,6 +593,7 @@ kind: Service
 metadata:
   name: shopping-frontend-service
 spec:
+  type: NodePort
   selector:
     app: shopping-frontend
   ports:
@@ -508,44 +602,22 @@ spec:
       targetPort: 80
 ```
 
-3. Crea un Ingress:
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: shopping-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$1
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: shopping-frontend-service
-            port: 
-              number: 80
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: shopping-api-service
-            port: 
-              number: 5000
-```
-
-Aplica estos recursos:
+3. Aplica estos recursos:
 
 ```bash
 kubectl apply -f backend-service.yaml
 kubectl apply -f frontend-service.yaml
-kubectl apply -f ingress.yaml
 ```
 
-### Preguntas Finales:
+4. Para acceder al frontend, usa:
+
+```bash
+minikube service shopping-frontend-service
+```
+
+Este comando abrirá automáticamente el servicio en tu navegador predeterminado.
+
+#### Preguntas:
 
 ¿Por qué usamos un Service de tipo ClusterIP para el backend y NodePort para el frontend?
 
