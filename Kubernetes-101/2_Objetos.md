@@ -2196,6 +2196,86 @@ spec:
 
 Los Volumes son útiles para almacenamiento efímero y compartir datos dentro de un Pod, mientras que PersistentVolumes son esenciales para aplicaciones que requieren almacenamiento duradero y consistente, independiente del ciclo de vida de los Pods.
 
+
+# Ingress
+
+## Definición
+
+Un Ingress en Kubernetes es un objeto API que gestiona el acceso externo a los servicios en un cluster, típicamente HTTP. Ingress puede proporcionar balanceo de carga, terminación SSL y enrutamiento basado en nombres virtuales.
+
+## Funcionalidad
+
+Ingress actúa como una "puerta de entrada" para tu cluster, permitiéndote consolidar las reglas de enrutamiento en un solo recurso. En lugar de exponer múltiples servicios individualmente, puedes configurar un Ingress para enrutar el tráfico a varios servicios.
+
+## Características principales
+
+1. **Enrutamiento basado en URL**: Puede dirigir solicitudes a diferentes servicios basándose en la URL.
+2. **Terminación SSL/TLS**: Maneja la terminación SSL/TLS para los servicios.
+3. **Balanceo de carga**: Distribuye el tráfico entre los pods de un servicio.
+4. **Nombres de host virtuales**: Permite el enrutamiento basado en nombres de dominio.
+
+## Componentes
+
+Un Ingress consta de dos partes principales:
+
+1. **Recurso Ingress**: Una definición de reglas de enrutamiento.
+2. **Controlador Ingress**: Un componente que interpreta las reglas y configura el balanceador de carga real.
+
+## Ejemplo de configuración
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: example-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: example.com
+    http:
+      paths:
+      - path: /app1
+        pathType: Prefix
+        backend:
+          service:
+            name: service1
+            port: 
+              number: 80
+      - path: /app2
+        pathType: Prefix
+        backend:
+          service:
+            name: service2
+            port: 
+              number: 8080
+```
+
+En este ejemplo, las solicitudes a `example.com/app1` se enrutan al `service1`, mientras que las solicitudes a `example.com/app2` se enrutan al `service2`.
+
+## Ventajas de usar Ingress
+
+1. **Configuración centralizada**: Gestiona el enrutamiento para múltiples servicios en un solo lugar.
+2. **Ahorro de recursos**: Reduce la necesidad de balanceadores de carga externos para cada servicio.
+3. **Flexibilidad**: Ofrece opciones avanzadas de enrutamiento y manipulación de tráfico.
+4. **Seguridad**: Facilita la implementación de SSL/TLS para múltiples servicios.
+
+## Consideraciones
+
+- Ingress requiere un Controlador Ingress para funcionar. Algunos entornos Kubernetes (como minikube) vienen con uno preinstalado, mientras que otros requieren que lo instales por separado.
+- Diferentes Controladores Ingress (como NGINX, Traefik, HAProxy) pueden tener características y configuraciones adicionales específicas.
+- En entornos de nube, Ingress a menudo se traduce en la configuración de un balanceador de carga del proveedor de la nube.
+
+## Uso en producción
+
+En entornos de producción, Ingress se utiliza comúnmente para:
+- Implementar enrutamiento basado en contenido para arquitecturas de microservicios.
+- Manejar la terminación SSL/TLS de manera centralizada.
+- Implementar estrategias de despliegue como canary releases o A/B testing mediante el enrutamiento de tráfico.
+
+Ingress es una herramienta poderosa en Kubernetes que simplifica significativamente la gestión del tráfico entrante a tu cluster, proporcionando una capa de abstracción sobre los detalles de implementación del balanceo de carga y el enrutamiento.
+
+
 ### Relaciones entre Objetos en Kubernetes
 
 Comprender cómo se relacionan los diferentes objetos en Kubernetes es fundamental para diseñar y gestionar aplicaciones de manera eficiente y robusta. Estas relaciones forman la base de la arquitectura de aplicaciones en Kubernetes.
@@ -2237,8 +2317,8 @@ Comprender cómo se relacionan los diferentes objetos en Kubernetes es fundament
   - ExternalName: Mapea el Service a un nombre DNS externo.
 - Uso: Para exponer aplicaciones dentro del cluster o al mundo exterior.
 
-#### 7. Ingress y Services
-- Ingress gestiona el acceso externo a los Services en un cluster.
+#### 7. Services
+- Gestiona el acceso externo a los Services en un cluster.
 - Puede proporcionar balanceo de carga, terminación SSL y enrutamiento basado en nombres.
 - Uso: Para manejar el tráfico HTTP y HTTPS entrante a múltiples Services.
 
@@ -2264,4 +2344,4 @@ Al diseñar aplicaciones para Kubernetes, considera:
 6. **Configuración**: Utiliza ConfigMaps y Secrets para manejar la configuración y los datos sensibles.
 7. **Almacenamiento**: Considera el uso de PersistentVolumes para aplicaciones que requieren almacenamiento duradero.
 
-| [&lt;-- Volver](1_Kubernetes.md) | [Siguiente --&gt;](3_Ejercicio.md) |
+| [&lt;-- Volver](1_Kubernetes.md) | [Siguiente --&gt;](3_Paquetes.md) |
