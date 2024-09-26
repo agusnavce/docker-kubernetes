@@ -1218,46 +1218,46 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
 
    Crea un archivo llamado `mi-daemonset.yaml` con el siguiente contenido:
 
-   ```yaml
-   apiVersion: apps/v1
-  kind: DaemonSet
-  metadata:
-    name: fluentd-elasticsearch
-    namespace: kube-system
-    labels:
-      k8s-app: fluentd-logging
-  spec:
-    selector:
-      matchLabels:
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluentd-elasticsearch
+  namespace: kube-system
+  labels:
+    k8s-app: fluentd-logging
+spec:
+  selector:
+    matchLabels:
+      name: fluentd-elasticsearch
+  template:
+    metadata:
+      labels:
         name: fluentd-elasticsearch
-    template:
-      metadata:
-        labels:
-          name: fluentd-elasticsearch
-      spec:
-        tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          effect: NoSchedule
-        - key: node-role.kubernetes.io/master
-          effect: NoSchedule
-        containers:
-        - name: fluentd-elasticsearch
-          image: fluent/fluentd-kubernetes-daemonset:v1.14.6-debian-elasticsearch7-1.1
-          resources:
-            limits:
-              memory: 200Mi
-            requests:
-              cpu: 100m
-              memory: 200Mi
-          volumeMounts:
-          - name: varlog
-            mountPath: /var/log
-        terminationGracePeriodSeconds: 30
-        volumes:
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        effect: NoSchedule
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: fluentd-elasticsearch
+        image: fluent/fluentd-kubernetes-daemonset:v1.14.6-debian-elasticsearch7-1.1
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
         - name: varlog
-          hostPath:
-            path: /var/log
-   ```
+          mountPath: /var/log
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: varlog
+        hostPath:
+          path: /var/log
+```
 
    Aplica el archivo para crear el DaemonSet:
 
@@ -1265,7 +1265,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
    kubectl apply -f mi-daemonset.yaml
    ```
 
-2. **Examinar el DaemonSet**
+1. **Examinar el DaemonSet**
 
    Verifica que el DaemonSet está en ejecución:
 
@@ -1279,7 +1279,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
    kubectl describe daemonset fluentd-elasticsearch -n kube-system
    ```
 
-3. **Verificar los Pods creados**
+2. **Verificar los Pods creados**
 
    Lista los Pods creados por el DaemonSet:
 
@@ -1289,7 +1289,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
 
    Observa que hay un Pod por cada nodo en tu cluster.
 
-4. **Actualizar el DaemonSet**
+3. **Actualizar el DaemonSet**
 
    Actualiza la imagen del contenedor:
 
@@ -1303,7 +1303,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
    kubectl rollout status daemonset/fluentd-elasticsearch -n kube-system
    ```
 
-5. **Verificar la actualización**
+4. **Verificar la actualización**
 
    Comprueba que todos los Pods están ejecutando la nueva versión:
 
@@ -1311,7 +1311,7 @@ En este ejercicio, crearemos un DaemonSet para ejecutar un agente de recolecció
    kubectl get pods -n kube-system -l name=fluentd-elasticsearch -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image
    ```
 
-6. **Eliminar el DaemonSet**
+5. **Eliminar el DaemonSet**
 
    Cuando hayas terminado, elimina el DaemonSet:
 
