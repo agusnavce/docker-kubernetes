@@ -1,193 +1,252 @@
-# Ejercicio de Opción Múltiple: Despliegue de una Aplicación en Kubernetes
+## Preguntas
 
-Este ejercicio evalúa tu conocimiento sobre el despliegue y operación de una aplicación en Kubernetes, abarcando varios aspectos como escalabilidad, actualizaciones, recuperación ante fallos, y almacenamiento persistente.
+1. **Configuración de Pods y Servicios**
+   ¿Qué componente de Kubernetes utilizarías para hacer que los Pods sean accesibles, se descubran entre sí y proporcionen un punto de acceso estable para otros servicios?
 
----
+   A) ConfigMaps
+   B) Servicios (Services)
+   C) Ingress
+   D) Volúmenes Persistentes
 
-## Paso 1: Configuración de Pods y Servicios
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: B) Servicios (Services)**
+   
+   Los Services en Kubernetes proporcionan una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Ofrecen un punto de acceso estable (ClusterIP, NodePort, o LoadBalancer) que permite la comunicación entre diferentes partes de la aplicación, facilitando el descubrimiento de servicios y el balanceo de carga.
+   </details>
 
-**Pregunta 1:**
-Necesitas crear Pods para cada microservicio. Estos Pods deben ser accesibles entre ellos y para los usuarios externos. ¿Qué componente de Kubernetes utilizarías para hacer que los Pods sean accesibles y se descubran entre sí?
+2. **Asignación de Recursos**
+   Para optimizar el uso de recursos en un cluster de Kubernetes, necesitas establecer límites y solicitudes de CPU y memoria para los Pods. ¿Qué combinación de objetos de Kubernetes te permite implementar una estrategia completa de gestión de recursos a nivel de namespace y Pod?
 
-- A) **Solo ConfigMaps**
-- B) **Servicios (Services)**
-- C) **Ingress únicamente**
-- D) **Solo Volúmenes Persistentes**
+   A) Resource Quotas y Limit Ranges
+   B) Horizontal Pod Autoscaler (HPA) y Vertical Pod Autoscaler (VPA)
+   C) NodeSelector y Taints
+   D) Pod Disruption Budgets y Priority Classes
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-B) **Servicios (Services)**  
-**Explicación:** Los Services permiten que los Pods se descubran entre ellos y exponen los microservicios al exterior si es necesario, gestionando el tráfico y balanceo de carga entre ellos.
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: A) Resource Quotas y Limit Ranges**
+   
+   Resource Quotas permiten limitar el consumo agregado de recursos en un namespace, mientras que Limit Ranges establecen valores predeterminados y límites para las solicitudes y límites de recursos de los Pods individuales. Juntos, proporcionan un control granular sobre la asignación de recursos en el cluster.
+   </details>
 
-</details>
+3. **Estrategias de Despliegue**
+   En un entorno de producción crítico, necesitas implementar una nueva versión de tu aplicación con zero downtime, permitiendo un rollback rápido si se detectan problemas. ¿Qué estrategia de despliegue en Kubernetes es más adecuada para este escenario?
 
----
+   A) Blue/Green Deployment utilizando Services
+   B) Canary Releases con Ingress
+   C) Rolling Updates con Deployments
+   D) A/B Testing con Ingress y Service Mesh
 
-## Paso 2: Asignación de recursos
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: C) Rolling Updates con Deployments**
+   
+   Los Rolling Updates con Deployments permiten actualizar gradualmente los Pods de la aplicación, garantizando que siempre haya instancias disponibles durante el proceso de actualización. Esta estrategia ofrece zero downtime y la capacidad de realizar rollback rápidamente si se detectan problemas, simplemente revirtiendo el Deployment a la versión anterior.
+   </details>
 
-**Pregunta 2:**
-Para garantizar que cada microservicio funcione dentro de los límites adecuados de CPU y memoria, necesitas establecer restricciones en los recursos que pueden usar. ¿Qué componentes de Kubernetes te permiten definir límites de recursos para los Pods?
+4. **Alta Disponibilidad y Recuperación ante Fallos**
+   Para garantizar la alta disponibilidad y la rápida recuperación ante fallos de tus microservicios en Kubernetes, ¿qué combinación de mecanismos deberías implementar?
 
-- A) **Resource Quotas y Limit Ranges**
-- B) **Horizontal Pod Autoscaler (HPA)**
-- C) **NodeSelector y Taints**
-- D) **Pod Disruption Budgets**
+   A) Liveness Probes, Readiness Probes
+   B) StatefulSets con Volúmenes Persistentes
+   C) DaemonSets con Node Affinity
+   D) CronJobs 
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Resource Quotas y Limit Ranges**  
-**Explicación:** Las Resource Quotas y Limit Ranges permiten definir cuánta CPU y memoria puede consumir un Pod o un conjunto de Pods, garantizando que cada microservicio se mantenga dentro de los límites establecidos.
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: A) Liveness Probes, Readiness Probes y PodDisruptionBudgets**
+   
+   Esta combinación proporciona una solución integral para la alta disponibilidad:
+   - Liveness Probes aseguran que los Pods no funcionales se reinicien automáticamente.
+   - Readiness Probes garantizan que solo los Pods completamente inicializados reciban tráfico.
+   </details>
 
-</details>
+## Nuevas Preguntas
 
----
+5. **Arquitectura de Cluster**
+   En un cluster de Kubernetes, ¿qué componente es responsable de mantener y actualizar el estado deseado del cluster, y dónde se ejecuta típicamente?
 
-## Paso 3: Escalabilidad
+   A) kubelet, en cada nodo del cluster
+   B) kube-proxy, en el plano de control
+   C) etcd, en los nodos de trabajo
+   D) kube-apiserver, en el plano de control
 
-**Pregunta 3:**
-Deseas mantener un número fijo de réplicas de tus Pods en ejecución para garantizar la alta disponibilidad de tus microservicios. Si algún Pod falla, debe ser reemplazado automáticamente para que siempre haya una cantidad mínima de réplicas en ejecución. ¿Qué componente de Kubernetes utilizarías para lograr esto?
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: D) kube-apiserver, en el plano de control**
+   
+   El kube-apiserver es el componente central del plano de control de Kubernetes. Es responsable de exponer la API de Kubernetes, procesar las solicitudes de los clientes, y mantener y actualizar el estado deseado del cluster en etcd. Se ejecuta típicamente en los nodos del plano de control (anteriormente conocidos como nodos maestros).
+   </details>
 
-- A) **DaemonSets**
-- B) **ReplicaSets**
-- C) **Horizontal Pod Autoscaler (HPA)**
-- D) **StatefulSets**
+6. **Tipos de Nodos**
+   En un cluster de Kubernetes, ¿cuál es la principal diferencia entre los nodos del plano de control y los nodos de trabajo?
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-B) **ReplicaSets**  
-**Explicación:** El **ReplicaSet** asegura que un número específico de Pods esté siempre en ejecución. Si un Pod falla, el ReplicaSet crea uno nuevo para mantener la cantidad deseada de réplicas.
+   A) Los nodos del plano de control ejecutan aplicaciones, mientras que los nodos de trabajo gestionan el cluster
+   B) Los nodos del plano de control gestionan el estado del cluster, mientras que los nodos de trabajo ejecutan las cargas de trabajo de las aplicaciones
+   C) Los nodos del plano de control almacenan datos persistentes, mientras que los nodos de trabajo procesan solicitudes de API
+   D) No hay diferencia, todos los nodos pueden realizar todas las funciones indistintamente
 
-</details>
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: B) Los nodos del plano de control gestionan el estado del cluster, mientras que los nodos de trabajo ejecutan las cargas de trabajo de las aplicaciones**
+   
+   Los nodos del plano de control (anteriormente llamados nodos maestros) albergan componentes críticos como el kube-apiserver, el kube-scheduler y el kube-controller-manager, que son responsables de mantener el estado deseado del cluster. Los nodos de trabajo, por otro lado, ejecutan los Pods de las aplicaciones y servicios desplegados por los usuarios.
+   </details>
 
----
+7. **Objetos de Kubernetes**
+   ¿Cuál de los siguientes objetos de Kubernetes se utiliza para garantizar que un Pod se ejecute en cada nodo del cluster, útil para tareas como la recolección de logs o el monitoreo de nodos?
 
-## Paso 4: Actualización de Pods
+   A) Deployment
+   B) StatefulSet
+   C) DaemonSet
+   D) Job
 
-**Pregunta 4:**
-Deseas implementar una nueva versión de los microservicios sin interrumpir el servicio. ¿Qué estrategia de despliegue deberías usar para implementar una nueva versión sin tiempo de inactividad?
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: C) DaemonSet**
+   
+   Un DaemonSet asegura que todos (o algunos) nodos ejecuten una copia de un Pod. A medida que se añaden nodos al cluster, los Pods son añadidos a ellos. Cuando los nodos se eliminan del cluster, esos Pods se garbage-collect. Eliminar un DaemonSet limpiará los Pods que creó. Los casos de uso típicos incluyen ejecutar un recolector de logs en cada nodo o un agente de monitoreo de nodos.
+   </details>
 
-- A) **Rolling Updates con Deployments**
-- B) **StatefulSets**
-- C) **Reiniciar manualmente los Pods**
-- D) **DaemonSets**
+8. **Networking en Kubernetes**
+   En el contexto de networking de Kubernetes, ¿qué afirmación es correcta sobre el modelo de red de Pods?
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Rolling Updates con Deployments**  
-**Explicación:** Los Rolling Updates permiten que los Pods antiguos sean reemplazados por los nuevos de forma gradual, evitando el tiempo de inactividad.
+   A) Cada Pod tiene su propia dirección IP privada y no puede comunicarse directamente con otros Pods
+   B) Todos los Pods en un nodo comparten la misma dirección IP
+   C) Cada Pod tiene su propia dirección IP y puede comunicarse directamente con otros Pods en el cluster
+   D) Los Pods no tienen direcciones IP asignadas y dependen completamente de los Services para la comunicación
 
-</details>
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: C) Cada Pod tiene su propia dirección IP y puede comunicarse directamente con otros Pods en el cluster**
+   
+   En Kubernetes, cada Pod recibe su propia dirección IP única dentro del cluster. Esto permite que los Pods se comuniquen directamente entre sí, sin necesidad de NAT, independientemente del nodo en el que estén ubicados. Este modelo simplifica significativamente la comunicación entre aplicaciones y servicios dentro del cluster.
+   </details>
 
----
+9. **Almacenamiento en Kubernetes**
+   ¿Qué objeto de Kubernetes se utiliza para solicitar almacenamiento persistente para un Pod, independientemente del ciclo de vida del Pod?
 
-## Paso 5: Recuperación ante fallos
+   A) ConfigMap
+   B) Secret
+   C) PersistentVolume
+   D) PersistentVolumeClaim
 
-**Pregunta 5:**
-Necesitas asegurarte de que los Pods fallidos se reinicien automáticamente sin afectar a otros componentes. ¿Qué mecanismo deberías implementar para garantizar la alta disponibilidad de los microservicios?
+   <details>
+   <summary>Ver solución</summary>
+   
+   **Respuesta correcta: D) PersistentVolumeClaim**
+   
+   Un PersistentVolumeClaim (PVC) es una solicitud de almacenamiento por parte de un usuario. Es similar a un Pod en el sentido de que los Pods consumen recursos de nodo y los PVCs consumen recursos de PersistentVolume. Los PVCs pueden solicitar tamaños y modos de acceso específicos (por ejemplo, pueden ser montados como ReadWriteOnce, ReadOnlyMany o ReadWriteMany). Los PVCs proporcionan a los Pods acceso a almacenamiento persistente, independientemente del ciclo de vida del Pod.
+   </details>
 
-- A) **Liveness Probes y Readiness Probes**
-- B) **StatefulSets con Volúmenes Persistentes**
-- C) **ConfigMaps**
-- D) **DaemonSets con HPA**
+10. **Pods en Kubernetes**
+    ¿Qué es un Pod en Kubernetes?
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Liveness Probes y Readiness Probes**  
-**Explicación:** Las Liveness Probes permiten que Kubernetes reinicie los Pods fallidos automáticamente, mientras que las Readiness Probes aseguran que los Pods estén listos para manejar tráfico antes de exponerlos.
+    A) Un nodo físico en el cluster
+    B) Un contenedor Docker
+    C) La unidad más pequeña y básica en el modelo de objetos de Kubernetes
+    D) Un servicio que expone una aplicación
 
-</details>
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: C) La unidad más pequeña y básica en el modelo de objetos de Kubernetes**
+    
+    Un Pod es la unidad de despliegue más pequeña y básica que se puede crear y gestionar en Kubernetes. Un Pod encapsula uno o más contenedores, recursos de almacenamiento, una IP de red única y opciones que gobiernan cómo deben ejecutarse los contenedores.
+    </details>
 
----
+11. **Servicios en Kubernetes**
+    ¿Cuál es la función principal de un Service en Kubernetes?
 
-## Paso 6: Persistencia de Datos
+    A) Ejecutar contenedores
+    B) Almacenar datos persistentes
+    C) Exponer una aplicación como un servicio de red
+    D) Monitorear el rendimiento del cluster
 
-**Pregunta 6:**
-Uno de los microservicios que estás desplegando necesita almacenar datos de manera persistente, incluso si los Pods fallan o se reinician. ¿Qué mecanismo deberías implementar en Kubernetes para garantizar la persistencia de los datos?
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: C) Exponer una aplicación como un servicio de red**
+    
+    Un Service en Kubernetes es una abstracción que define un conjunto lógico de Pods y una política para acceder a ellos. Services permiten que un grupo de Pods sea accesible a través de la red, ya sea dentro del cluster o desde el exterior, proporcionando una IP estable y un nombre DNS para acceder a la aplicación.
+    </details>
 
-- A) **Volúmenes Persistentes (Persistent Volumes) y PersistentVolumeClaims (PVC)**
-- B) **ConfigMaps**
-- C) **Liveness Probes**
-- D) **ReplicaSets**
+12. **Deployments en Kubernetes**
+    ¿Cuál es el propósito principal de un Deployment en Kubernetes?
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Volúmenes Persistentes (Persistent Volumes) y PersistentVolumeClaims (PVC)**  
-**Explicación:** Los Volúmenes Persistentes y PersistentVolumeClaims permiten que los datos de la aplicación persistan incluso si los Pods fallan o se reinician, asegurando que los datos no se pierdan.
+    A) Crear volúmenes persistentes
+    B) Gestionar la creación y actualización de Pods
+    C) Configurar el networking del cluster
+    D) Autenticar usuarios en el cluster
 
-</details>
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: B) Gestionar la creación y actualización de Pods**
+    
+    Un Deployment proporciona declaraciones sobre cómo crear y actualizar instancias de tu aplicación. Una vez que creas un Deployment, el Control Plane de Kubernetes programa las instancias de aplicación incluidas en ese Deployment para que se ejecuten en nodos individuales del cluster. El Deployment también maneja las actualizaciones de la aplicación de manera controlada.
+    </details>
 
----
+13. **Namespaces en Kubernetes**
+    ¿Qué son los Namespaces en Kubernetes?
 
-## Paso 7: Gestión de Configuración
+    A) Espacios de almacenamiento físico en los nodos
+    B) Clusters virtuales dentro de un mismo cluster físico
+    C) Tipos de contenedores
+    D) Mecanismos de autenticación
 
-**Pregunta 7:**
-Quieres que los microservicios utilicen un archivo de configuración que puedas cambiar sin reconstruir la imagen del contenedor. ¿Qué recurso de Kubernetes deberías usar para inyectar esta configuración en los Pods?
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: B) Clusters virtuales dentro de un mismo cluster físico**
+    
+    Los Namespaces proporcionan un mecanismo para aislar grupos de recursos dentro de un mismo cluster físico. Son útiles en entornos con muchos usuarios distribuidos en múltiples equipos o proyectos, permitiendo dividir los recursos del cluster entre múltiples usos.
+    </details>
 
-- A) **ConfigMaps**
-- B) **Secrets**
-- C) **Persistent Volumes**
-- D) **ReplicaSets**
+14. **ConfigMaps en Kubernetes**
+    ¿Para qué se utilizan principalmente los ConfigMaps en Kubernetes?
 
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **ConfigMaps**  
-**Explicación:** Los ConfigMaps permiten inyectar datos de configuración en los Pods sin necesidad de reconstruir la imagen del contenedor, facilitando la gestión de configuraciones dinámicas.
+    A) Para almacenar contraseñas y tokens
+    B) Para definir límites de recursos de los Pods
+    C) Para almacenar datos de configuración no confidenciales
+    D) Para crear copias de seguridad del cluster
 
-</details>
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: C) Para almacenar datos de configuración no confidenciales**
+    
+    Los ConfigMaps permiten desacoplar la configuración de la aplicación de las imágenes de los contenedores. Se utilizan para almacenar datos no confidenciales en formato clave-valor. Las aplicaciones pueden consumir ConfigMaps como variables de entorno, argumentos de línea de comandos o como archivos de configuración en un volumen.
+    </details>
 
----
+15. **Componentes Principales de Kubernetes**
+    ¿Cuál de los siguientes NO es un componente principal del plano de control (control plane) de Kubernetes?
 
-## Paso 8: Seguridad
+    A) kube-apiserver
+    B) etcd
+    C) kube-scheduler
+    D) kubelet
 
-**Pregunta 8:**
-Para manejar información sensible, como contraseñas o claves API, en un entorno seguro dentro de Kubernetes, ¿qué recurso deberías usar?
+    <details>
+    <summary>Ver solución</summary>
+    
+    **Respuesta correcta: D) kubelet**
+    
+    El kubelet no es parte del plano de control de Kubernetes. Es un agente que se ejecuta en cada nodo del cluster y se asegura de que los contenedores estén corriendo en un Pod. Los componentes principales del plano de control son:
+    
+    - kube-apiserver: El servidor de API que sirve como punto de entrada para el cluster.
+    - etcd: La base de datos de clave-valor que almacena la configuración del cluster.
+    - kube-scheduler: Responsable de programar Pods en nodos.
+    - kube-controller-manager: Ejecuta los controladores del cluster.
 
-- A) **Secrets**
-- B) **ConfigMaps**
-- C) **Resource Quotas**
-- D) **Ingress**
-
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Secrets**  
-**Explicación:** Los Secrets permiten almacenar y gestionar información sensible, como contraseñas y claves API, de forma segura en Kubernetes.
-
-</details>
-
----
-
-## Paso 9: Balanceo de carga externo
-
-**Pregunta 9:**
-Tu aplicación necesita estar disponible para usuarios externos y recibir tráfico HTTP. ¿Qué recurso de Kubernetes te permite gestionar el tráfico externo y balancearlo hacia los Pods correctos?
-
-- A) **Ingress**
-- B) **DaemonSets**
-- C) **StatefulSets**
-- D) **Pod Disruption Budgets**
-
-<details>
-<summary><strong>Ver solución</strong></summary>
-  
-**Respuesta correcta:**  
-A) **Ingress**  
-**Explicación:** Ingress permite gestionar el tráfico HTTP externo y redirigirlo a los Servicios internos correspondientes, ofreciendo balanceo de carga y enrutamiento.
-
-</details>
-
+    El kubelet, por otro lado, es un componente que se ejecuta en cada nodo trabajador y se comunica con el plano de control para gestionar los Pods en su nodo.
+    </details>
