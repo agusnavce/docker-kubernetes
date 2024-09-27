@@ -74,59 +74,10 @@ Artifact Hub es una plataforma web que sirve como repositorio centralizado para 
 
 ### Características principales de Artifact Hub:
 
-1. **Diversidad de artefactos**: Aloja no solo Helm charts, sino también operadores, paquetes OLM (Operator Lifecycle Manager), Falco rules, OPA policies, Tekton tasks, KEDA scalers, entre otros.
+1. **Búsqueda y descubrimiento**: Ofrece una interfaz web intuitiva para buscar y explorar diferentes tipos de artefactos.
 
-2. **Búsqueda y descubrimiento**: Ofrece una interfaz web intuitiva para buscar y explorar diferentes tipos de artefactos.
+2. **Metadatos y documentación**: Proporciona información detallada sobre cada artefacto, incluyendo versiones, mantenedores, y documentación.
 
-3. **Metadatos y documentación**: Proporciona información detallada sobre cada artefacto, incluyendo versiones, mantenedores, y documentación.
+3. **Integración con CI/CD**: Permite la publicación automática de artefactos a través de pipelines de CI/CD.
 
-4. **Integración con CI/CD**: Permite la publicación automática de artefactos a través de pipelines de CI/CD.
-
-5. **Verificación y seguridad**: Incluye características como firmas de artefactos y escaneo de vulnerabilidades.
-
-### Diferencias clave:
-
-#### Artifact Hub vs. Artefactos de Kubernetes:
-
-1. **Alcance**:
-   - Artefactos de Kubernetes: Son los componentes básicos de Kubernetes (Pods, Services, etc.).
-   - Artifact Hub: Es un repositorio para encontrar configuraciones y extensiones pre-empaquetadas de estos artefactos.
-
-2. **Uso**:
-   - Artefactos de Kubernetes: Se utilizan directamente en el cluster.
-   - Artifact Hub: Es una plataforma de descubrimiento; los artefactos encontrados aquí se descargan y luego se aplican al cluster.
-
-3. **Formato**:
-   - Artefactos de Kubernetes: Definidos en YAML o JSON.
-   - Artifact Hub: Aloja múltiples formatos, incluyendo charts, operadores, y otros.
-
-#### Artifact Hub vs. Helm:
-
-1. **Función principal**:
-   - Helm: Es una herramienta de gestión de paquetes y despliegue.
-   - Artifact Hub: Es un repositorio y plataforma de descubrimiento.
-
-2. **Contenido**:
-   - Helm: Se centra específicamente en Helm charts.
-   - Artifact Hub: Incluye Helm charts pero también muchos otros tipos de artefactos.
-
-3. **Interacción con Kubernetes**:
-   - Helm: Interactúa directamente con Kubernetes para instalar y gestionar aplicaciones.
-   - Artifact Hub: No interactúa directamente con Kubernetes; es una fuente de recursos que luego se utilizan con otras herramientas.
-
-### Cómo se complementan:
-
-1. **Flujo de trabajo típico**:
-   - Usar Artifact Hub para descubrir y seleccionar un Helm chart u otro artefacto.
-   - Descargar o referenciar el artefacto desde Artifact Hub.
-   - Utilizar Helm (para charts) o la herramienta apropiada para desplegar el artefacto en Kubernetes.
-
-2. **Ecosistema más amplio**:
-   - Artifact Hub amplía el ecosistema más allá de Helm, proporcionando un lugar central para diversos recursos de Kubernetes.
-   - Facilita la adopción de prácticas y herramientas más allá de las configuraciones básicas de Kubernetes.
-
-3. **Comunidad y colaboración**:
-   - Artifact Hub fomenta la compartición y colaboración en la comunidad de Kubernetes.
-   - Ayuda a los desarrolladores a descubrir soluciones existentes antes de crear las suyas propias.
-
-En resumen, mientras que los artefactos nativos de Kubernetes son los bloques de construcción básicos, y Helm es una herramienta para empaquetar y desplegar estos bloques, Artifact Hub es una plataforma que facilita el descubrimiento y compartición de configuraciones y extensiones pre-empaquetadas para Kubernetes. Juntos, forman un ecosistema que facilita el desarrollo, despliegue y gestión de aplicaciones en Kubernetes.
+4. **Verificación y seguridad**: Incluye características como firmas de artefactos y escaneo de vulnerabilidades.
