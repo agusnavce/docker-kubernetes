@@ -3,10 +3,10 @@
 1. **Configuración de Pods y Servicios**
    ¿Qué componente de Kubernetes utilizarías para hacer que los Pods sean accesibles, se descubran entre sí y proporcionen un punto de acceso estable para otros servicios?
 
-   A) ConfigMaps
-   B) Servicios (Services)
-   C) Ingress
-   D) Volúmenes Persistentes
+   - A) ConfigMaps
+   - B) Servicios (Services)
+   - C) Ingress
+   - D) Volúmenes Persistentes
 
    <details>
    <summary>Ver solución</summary>
@@ -19,10 +19,10 @@
 2. **Asignación de Recursos**
    Para optimizar el uso de recursos en un cluster de Kubernetes, necesitas establecer límites y solicitudes de CPU y memoria para los Pods. ¿Qué combinación de objetos de Kubernetes te permite implementar una estrategia completa de gestión de recursos a nivel de namespace y Pod?
 
-   A) Resource Quotas y Limit Ranges
-   B) Horizontal Pod Autoscaler (HPA) y Vertical Pod Autoscaler (VPA)
-   C) NodeSelector y Taints
-   D) Pod Disruption Budgets y Priority Classes
+   - A) Resource Quotas y Limit Ranges
+   - B) Horizontal Pod Autoscaler (HPA) y Vertical Pod Autoscaler (VPA)
+   - C) NodeSelector y Taints
+   - D) Pod Disruption Budgets y Priority Classes
 
    <details>
    <summary>Ver solución</summary>
@@ -35,10 +35,10 @@
 3. **Estrategias de Despliegue**
    En un entorno de producción crítico, necesitas implementar una nueva versión de tu aplicación con zero downtime, permitiendo un rollback rápido si se detectan problemas. ¿Qué estrategia de despliegue en Kubernetes es más adecuada para este escenario?
 
-   A) Blue/Green Deployment utilizando Services
-   B) Canary Releases con Ingress
-   C) Rolling Updates con Deployments
-   D) A/B Testing con Ingress y Service Mesh
+   - A) Blue/Green Deployment utilizando Services
+   - B) Canary Releases con Ingress
+   - C) Rolling Updates con Deployments
+   - D) A/B Testing con Ingress y Service Mesh
 
    <details>
    <summary>Ver solución</summary>
@@ -51,10 +51,10 @@
 4. **Alta Disponibilidad y Recuperación ante Fallos**
    Para garantizar la alta disponibilidad y la rápida recuperación ante fallos de tus microservicios en Kubernetes, ¿qué combinación de mecanismos deberías implementar?
 
-   A) Liveness Probes, Readiness Probes
-   B) StatefulSets con Volúmenes Persistentes
-   C) DaemonSets con Node Affinity
-   D) CronJobs 
+   - A) Liveness Probes, Readiness Probes
+   - B) StatefulSets con Volúmenes Persistentes
+   - C) DaemonSets con Node Affinity
+   - D) CronJobs 
 
    <details>
    <summary>Ver solución</summary>
@@ -71,10 +71,10 @@
 5. **Arquitectura de Cluster**
    En un cluster de Kubernetes, ¿qué componente es responsable de mantener y actualizar el estado deseado del cluster, y dónde se ejecuta típicamente?
 
-   A) kubelet, en cada nodo del cluster
-   B) kube-proxy, en el plano de control
-   C) etcd, en los nodos de trabajo
-   D) kube-apiserver, en el plano de control
+   - A) kubelet, en cada nodo del cluster
+   - B) kube-proxy, en el plano de control
+   - C) etcd, en los nodos de trabajo
+   - D) kube-apiserver, en el plano de control
 
    <details>
    <summary>Ver solución</summary>
@@ -87,10 +87,10 @@
 6. **Tipos de Nodos**
    En un cluster de Kubernetes, ¿cuál es la principal diferencia entre los nodos del plano de control y los nodos de trabajo?
 
-   A) Los nodos del plano de control ejecutan aplicaciones, mientras que los nodos de trabajo gestionan el cluster
-   B) Los nodos del plano de control gestionan el estado del cluster, mientras que los nodos de trabajo ejecutan las cargas de trabajo de las aplicaciones
-   C) Los nodos del plano de control almacenan datos persistentes, mientras que los nodos de trabajo procesan solicitudes de API
-   D) No hay diferencia, todos los nodos pueden realizar todas las funciones indistintamente
+   - A) Los nodos del plano de control ejecutan aplicaciones, mientras que los nodos de trabajo gestionan el cluster
+   - B) Los nodos del plano de control gestionan el estado del cluster, mientras que los nodos de trabajo ejecutan las cargas de trabajo de las aplicaciones
+   - C) Los nodos del plano de control almacenan datos persistentes, mientras que los nodos de trabajo procesan solicitudes de API
+   - D) No hay diferencia, todos los nodos pueden realizar todas las funciones indistintamente
 
    <details>
    <summary>Ver solución</summary>
@@ -103,10 +103,10 @@
 7. **Objetos de Kubernetes**
    ¿Cuál de los siguientes objetos de Kubernetes se utiliza para garantizar que un Pod se ejecute en cada nodo del cluster, útil para tareas como la recolección de logs o el monitoreo de nodos?
 
-   A) Deployment
-   B) StatefulSet
-   C) DaemonSet
-   D) Job
+   - A) Deployment
+   - B) StatefulSet
+   - C) DaemonSet
+   - D) Job
 
    <details>
    <summary>Ver solución</summary>
@@ -119,10 +119,10 @@
 8. **Networking en Kubernetes**
    En el contexto de networking de Kubernetes, ¿qué afirmación es correcta sobre el modelo de red de Pods?
 
-   A) Cada Pod tiene su propia dirección IP privada y no puede comunicarse directamente con otros Pods
-   B) Todos los Pods en un nodo comparten la misma dirección IP
-   C) Cada Pod tiene su propia dirección IP y puede comunicarse directamente con otros Pods en el cluster
-   D) Los Pods no tienen direcciones IP asignadas y dependen completamente de los Services para la comunicación
+   - A) Cada Pod tiene su propia dirección IP privada y no puede comunicarse directamente con otros Pods
+   - B) Todos los Pods en un nodo comparten la misma dirección IP
+   - C) Cada Pod tiene su propia dirección IP y puede comunicarse directamente con otros Pods en el cluster
+   - D) Los Pods no tienen direcciones IP asignadas y dependen completamente de los Services para la comunicación
 
    <details>
    <summary>Ver solución</summary>
@@ -135,10 +135,10 @@
 9. **Almacenamiento en Kubernetes**
    ¿Qué objeto de Kubernetes se utiliza para solicitar almacenamiento persistente para un Pod, independientemente del ciclo de vida del Pod?
 
-   A) ConfigMap
-   B) Secret
-   C) PersistentVolume
-   D) PersistentVolumeClaim
+   - A) ConfigMap
+   - B) Secret
+   - C) PersistentVolume
+   - D) PersistentVolumeClaim
 
    <details>
    <summary>Ver solución</summary>
@@ -151,10 +151,10 @@
 10. **Pods en Kubernetes**
     ¿Qué es un Pod en Kubernetes?
 
-    A) Un nodo físico en el cluster
-    B) Un contenedor Docker
-    C) La unidad más pequeña y básica en el modelo de objetos de Kubernetes
-    D) Un servicio que expone una aplicación
+    - A) Un nodo físico en el cluster
+    - B) Un contenedor Docker
+    - C) La unidad más pequeña y básica en el modelo de objetos de Kubernetes
+    - D) Un servicio que expone una aplicación
 
     <details>
     <summary>Ver solución</summary>
@@ -167,10 +167,10 @@
 11. **Servicios en Kubernetes**
     ¿Cuál es la función principal de un Service en Kubernetes?
 
-    A) Ejecutar contenedores
-    B) Almacenar datos persistentes
-    C) Exponer una aplicación como un servicio de red
-    D) Monitorear el rendimiento del cluster
+    - A) Ejecutar contenedores
+    - B) Almacenar datos persistentes
+    - C) Exponer una aplicación como un servicio de red
+    - D) Monitorear el rendimiento del cluster
 
     <details>
     <summary>Ver solución</summary>
@@ -183,10 +183,10 @@
 12. **Deployments en Kubernetes**
     ¿Cuál es el propósito principal de un Deployment en Kubernetes?
 
-    A) Crear volúmenes persistentes
-    B) Gestionar la creación y actualización de Pods
-    C) Configurar el networking del cluster
-    D) Autenticar usuarios en el cluster
+    - A) Crear volúmenes persistentes
+    - B) Gestionar la creación y actualización de Pods
+    - C) Configurar el networking del cluster
+    - D) Autenticar usuarios en el cluster
 
     <details>
     <summary>Ver solución</summary>
@@ -199,10 +199,10 @@
 13. **Namespaces en Kubernetes**
     ¿Qué son los Namespaces en Kubernetes?
 
-    A) Espacios de almacenamiento físico en los nodos
-    B) Clusters virtuales dentro de un mismo cluster físico
-    C) Tipos de contenedores
-    D) Mecanismos de autenticación
+    - A) Espacios de almacenamiento físico en los nodos
+    - B) Clusters virtuales dentro de un mismo cluster físico
+    - C) Tipos de contenedores
+    - D) Mecanismos de autenticación
 
     <details>
     <summary>Ver solución</summary>
@@ -215,10 +215,10 @@
 14. **ConfigMaps en Kubernetes**
     ¿Para qué se utilizan principalmente los ConfigMaps en Kubernetes?
 
-    A) Para almacenar contraseñas y tokens
-    B) Para definir límites de recursos de los Pods
-    C) Para almacenar datos de configuración no confidenciales
-    D) Para crear copias de seguridad del cluster
+    - A) Para almacenar contraseñas y tokens
+    - B) Para definir límites de recursos de los Pods
+    - C) Para almacenar datos de configuración no confidenciales
+    - D) Para crear copias de seguridad del cluster
 
     <details>
     <summary>Ver solución</summary>
@@ -231,10 +231,10 @@
 15. **Componentes Principales de Kubernetes**
     ¿Cuál de los siguientes NO es un componente principal del plano de control (control plane) de Kubernetes?
 
-    A) kube-apiserver
-    B) etcd
-    C) kube-scheduler
-    D) kubelet
+    - A) kube-apiserver
+    - B) etcd
+    - C) kube-scheduler
+    - D) kubelet
 
     <details>
     <summary>Ver solución</summary>
